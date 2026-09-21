@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0d513d" />
+    <title>Nutri-Scan AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#dashboard" aria-label="Nutri-Scan AI home">
+          <span class="brand-mark">N</span><span>nutri<span>scan</span></span>
+        </a>
+        <div class="farm-switcher"><span class="farm-icon">⌂</span><div><small>ACTIVE FARM</small><strong>Shiv Dairy Farm</strong></div><span>⌄</span></div>
+        <nav aria-label="Main navigation">
+          <a class="nav-item active" href="#dashboard">◉ <span>Overview</span></a>
+          <a class="nav-item" href="#new-test">◌ <span>New test</span></a>
+          <a class="nav-item" href="#history">▤ <span>Test history</span></a>
+          <a class="nav-item" href="#monitoring">⌁ <span>Storage monitor</span></a>
+        </nav>
+        <div class="device-card"><div class="device-head"><span class="dot"></span><strong>Field unit NS-04</strong></div><p>Connected · Calibrated today</p><button id="syncBtn" class="text-button">Sync data now</button></div>
+        <div class="sidebar-footer">Designed for field use<br /><span>Offline-ready • v0.1 demo</span></div>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar"><div><p class="eyebrow">FRIDAY, 19 SEPTEMBER</p><h1>Good morning, Atif.</h1></div><div class="top-actions"><span id="syncState" class="sync-state">● Saved locally</span><button class="avatar" aria-label="Profile">A</button></div></header>
+
+        <section id="dashboard" class="dashboard-view">
+          <div class="hero"><div><p class="eyebrow">FIELD INTELLIGENCE</p><h2>Know your feed before it reaches the herd.</h2><p>Run a quick field screening, understand the result, and keep every batch traceable.</p><a class="primary-button" href="#new-test">Start a new test <span>→</span></a></div><div class="hero-visual" aria-hidden="true"><div class="sun"></div><div class="hill hill-one"></div><div class="hill hill-two"></div><div class="silo"><i></i><i></i><i></i></div><div class="feed-bag">FEED</div><div class="sprig">✦</div></div></div>
+
+          <div class="section-heading"><div><p class="eyebrow">TODAY AT A GLANCE</p><h2>Farm status</h2></div><span class="last-updated">Last updated just now</span></div>
+          <div class="metrics">
+            <article class="metric"><span class="metric-icon green">✓</span><div><p>Latest feed quality</p><strong id="qualityMetric">82 <small>/ 100</small></strong><span class="positive">Good quality</span></div></article>
+            <article class="metric"><span class="metric-icon amber">!</span><div><p>Open alerts</p><strong id="alertMetric">1</strong><span class="warning">Needs attention</span></div></article>
+            <article class="metric"><span class="metric-icon blue">⌁</span><div><p>Monitored batches</p><strong>4</strong><span class="muted">2 sensors online</span></div></article>
+          </div>
+
+          <div class="content-grid">
+            <article id="new-test" class="test-panel"><div class="panel-heading"><div><p class="eyebrow">RAPID SCREENING</p><h2>Start a sample test</h2></div><span class="step">Step 1 of 2</span></div><p class="panel-copy">Enter basic details. The demo then simulates camera, NIR and environmental readings.</p><form id="testForm"><div class="form-row"><label>Sample type<select id="sampleType"><option value="Silage">Silage</option><option value="Cattle feed">Cattle feed</option><option value="Hay">Hay</option></select></label><label>Batch ID<input id="batchId" value="SIL-2409-B" required /></label></div><label class="full-label">Sample appearance<select id="appearance"><option value="normal">Normal colour and texture</option><option value="mould">Visible mould / dark patches</option><option value="foreign">Foreign material observed</option></select></label><button class="primary-button submit" type="submit">Analyze sample <span>→</span></button></form></article>
+
+            <article class="recent-panel"><div class="panel-heading"><div><p class="eyebrow">LATEST RESULT</p><h2 id="resultTitle">Maize silage</h2></div><span id="riskBadge" class="risk-badge good">LOW RISK</span></div><div class="result-score"><div class="score-ring" id="scoreRing"><strong id="scoreValue">82</strong><span>/100</span></div><div><p id="resultSummary">Good overall quality. Safe to use with routine checks.</p><button id="detailsBtn" class="text-button">See explanation</button></div></div><div class="drivers"><div><span>Moisture</span><strong id="moisture">64%</strong></div><div><span>Fermentation</span><strong id="fermentation">Stable</strong></div><div><span>Confidence</span><strong id="confidence">88%</strong></div></div></article>
+          </div>
+
+          <div id="monitoring" class="monitor-section"><div class="section-heading"><div><p class="eyebrow">SILAGE STORAGE</p><h2>Condition monitor</h2></div><button id="resolveAlert" class="text-button">Mark alert reviewed</button></div><div class="monitor-grid"><article class="chart-panel"><div class="chart-head"><div><strong>North pit · SIL-2409-A</strong><span>Last 24 hours</span></div><span class="risk-badge watch">WATCH</span></div><div class="chart-wrap"><div class="y-labels"><span>35°</span><span>30°</span><span>25°</span><span>20°</span></div><svg viewBox="0 0 520 180" role="img" aria-label="Temperature is increasing from 23 to 31 degrees Celsius"><path class="gridline" d="M0 12H520M0 62H520M0 112H520M0 162H520"/><path id="tempArea" class="temp-area" d="M0,142 C45,137 68,130 102,130 S166,132 202,113 S250,106 288,101 S340,111 376,85 S423,72 455,49 S491,40 520,31 L520,180 L0,180 Z"/><path id="tempLine" class="temp-line" d="M0,142 C45,137 68,130 102,130 S166,132 202,113 S250,106 288,101 S340,111 376,85 S423,72 455,49 S491,40 520,31"/><circle id="tempEnd" cx="520" cy="31" r="5"/></svg><div class="x-labels"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>Now</span></div></div><p class="chart-note" id="chartNote"><span>!</span> Temperature crossed the 30°C watch threshold. Inspect the cover and aeration.</p></article><article class="action-panel"><p class="eyebrow">RECOMMENDED ACTION</p><h3 id="actionTitle">Inspect the north pit today</h3><p id="actionText">The rising temperature can indicate air exposure. Check the cover seal, take a fresh sample, and avoid feeding if a sour or mouldy smell appears.</p><button class="secondary-button" id="addTask">Add to farm tasks</button><span id="taskState" class="task-state"></span></article></div></div>
+
+          <section id="history" class="history-section"><div class="section-heading"><div><p class="eyebrow">TRACEABILITY</p><h2>Recent test history</h2></div><button class="text-button" id="exportBtn">Export report</button></div><div class="table-wrap"><table><thead><tr><th>Batch</th><th>Sample</th><th>Test time</th><th>Quality score</th><th>Action</th></tr></thead><tbody id="historyRows"><tr><td><strong>SIL-2409-B</strong></td><td>Maize silage</td><td>Today, 09:42</td><td><span class="score-cell">82</span></td><td><span class="status good">Safe to use</span></td></tr><tr><td><strong>FEED-2409-18</strong></td><td>Concentrate mix</td><td>Yesterday, 16:10</td><td><span class="score-cell">74</span></td><td><span class="status watch">Re-test in 48h</span></td></tr><tr><td><strong>SIL-2409-A</strong></td><td>Maize silage</td><td>Yesterday, 10:24</td><td><span class="score-cell">61</span></td><td><span class="status risk">Inspect storage</span></td></tr></tbody></table></div></section>
+        </section>
+      </section>
+    </main>
+    <dialog id="explanationDialog"><div class="dialog-head"><div><p class="eyebrow">ASSESSMENT EXPLANATION</p><h2>Why this result?</h2></div><button id="closeDialog" class="close-button" aria-label="Close">×</button></div><div id="explanationContent"></div><p class="safety-note">Field screening gives an estimate, not laboratory certification. Red flags or low confidence require a confirmatory lab test.</p></dialog>
+    <script src="app.js"></script>
+  </body>
+</html>
