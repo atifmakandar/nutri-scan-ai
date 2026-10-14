@@ -130,7 +130,7 @@ docker compose up --build
       "mold_score": 0.08,
       "color_anomaly": 0.05,
       "surface_damage": 0.02
-    }
+     }
   }
 }
 ```
