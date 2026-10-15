@@ -1,0 +1,14 @@
+.pwa-install { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px; max-width: 340px; font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; color: #183d31; }
+.pwa-install .pwa-button, .pwa-options > summary, .pwa-options a { min-height: 48px; padding: 12px 16px; font: inherit; font-weight: 700; border-radius: 10px; }
+.pwa-install .pwa-button { border: 2px solid #0d513d; color: white; background: #0d513d; cursor: pointer; }
+.pwa-install .pwa-button:disabled { opacity: .65; cursor: wait; }
+.pwa-options { flex: 1 1 160px; border: 1px solid #a9bcab; border-radius: 10px; background: #f5f8f2; }
+.pwa-options > summary { cursor: pointer; }
+.pwa-options p { padding-inline: 14px; }
+.pwa-options a { display: inline-flex; align-items: center; color: #0d513d; }
+.pwa-install .pwa-status { flex: 1 1 100%; font-size: 14px; margin: 0; }
+.pwa-installed { display: inline-flex; align-items: center; min-height: 48px; font-weight: 700; }
+.pwa-update { flex-basis: 100%; padding: 12px; border: 2px solid #0d513d; border-radius: 10px; background: #f5f8f2; }
+.pwa-update p { margin-top: 0; }
+.pwa-install :is(button, summary, a):focus-visible { outline: 3px solid #995000; outline-offset: 4px; }
+@media (max-width: 600px) { .pwa-install { width: 100%; max-width: none; } }

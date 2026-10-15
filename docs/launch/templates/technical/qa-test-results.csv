@@ -1,0 +1,2 @@
+data_status,run_id,test_case_id,release_id,environment,executed_at,executor_id,device_browser_ref,status,expected_result,actual_result,evidence_ref,evidence_sha256,issue_ref,reviewer_id,notes
+placeholder_not_for_use,PLACEHOLDER_RUN_ID,PLACEHOLDER_TEST_CASE_ID,PLACEHOLDER_RELEASE_ID,PLACEHOLDER_ENVIRONMENT,,PLACEHOLDER_EXECUTOR_ID,PLACEHOLDER_DEVICE_BROWSER_REF,not_run,PLACEHOLDER_ACCEPTANCE_CRITERION,,PLACEHOLDER_RESTRICTED_EVIDENCE_REF,,PLACEHOLDER_ISSUE_REF,PLACEHOLDER_REVIEWER_ID,Template row only - no test execution or pass is asserted

@@ -1,0 +1,42 @@
+.skip-link { position: fixed; top: -100px; left: 12px; padding: 16px; z-index: 20; background: white; color: #103d31; }
+.skip-link:focus { top: 12px; }
+.farmer-mode .sidebar { display: none; }
+.farmer-mode .workspace { width: 100%; max-width: 1280px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 48px); }
+.topbar { flex-wrap: wrap; }
+.topbar h1 { overflow-wrap: anywhere; }
+.top-actions { flex-wrap: wrap; gap: 10px; }
+.top-actions .language-picker { font-size: 14px; }
+.top-actions .language-picker select { min-height: 48px; font-size: 16px; }
+.top-actions .secondary-button { min-height: 48px; }
+.dashboard-toggle[aria-pressed="true"] { outline: 2px solid #0d513d; outline-offset: 2px; }
+.farmer-connection { margin-block: 20px; }
+.farmer-connection > a { margin-top: 10px; }
+.fieldwork-link { min-height: 48px; white-space: normal; line-height: 1.5; }
+.workflow-grid > * { min-width: 0; }
+.result-card { position: static; }
+.result-card .panel-heading { flex-wrap: wrap; }
+.result-card h2 { overflow-wrap: anywhere; }
+.fr-score { margin-top: 14px; font-size: 18px; }
+.farmer-mode .workflow-grid { grid-template-columns: 1fr; }
+.farmer-mode .account-area { max-width: none; }
+.farmer-account-details { padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+.farmer-account-details > summary { min-height: 48px; padding-block: 12px; cursor: pointer; font-weight: 700; }
+.farmer-mode .feature-history { font-size: 16px; }
+.farmer-mode .feature-history label { font-size: 14px; }
+.farmer-mode .feature-history input, .farmer-mode .feature-history select { min-height: 48px; font-size: 16px; }
+.farmer-mode .feature-history button, .farmer-mode .report-buttons button { min-height: 48px; padding: 12px; font-size: 15px; }
+.farmer-mode .disclaimer { font-size: 14px; }
+:where(button, a, summary):focus-visible { outline: 3px solid #296e46; outline-offset: 4px; }
+:where(#scan, #result, #history, #drafts, #farmer-help) { scroll-margin-top: 20px; }
+@media (max-width: 600px) {
+  .topbar { align-items: flex-start; }
+  .top-actions { width: 100%; }
+  .top-actions .language-picker { flex: 1 1 100%; justify-content: space-between; }
+  .top-actions .language-picker select { min-width: 160px; }
+  .top-actions .secondary-button { flex: 1; }
+  .result-card { padding: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

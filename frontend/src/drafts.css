@@ -1,0 +1,41 @@
+.drafts-panel { margin-top: 36px; padding: 24px; border: 1px solid var(--line, #dfe9df); border-radius: 15px; background: var(--white, #fffefa); box-shadow: 0 8px 28px rgba(39, 66, 42, .035); }
+.drafts-panel-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.drafts-panel h2 { margin: 6px 0 0; color: var(--ink, #19382d); font: 700 24px/1.15 Fraunces, Georgia, serif; letter-spacing: -.025em; }
+.drafts-eyebrow { margin: 0; color: var(--muted, #7b8d83); font-size: 10px; font-weight: 800; letter-spacing: .14em; }
+.drafts-count { padding: 6px 9px; border-radius: 99px; color: var(--leaf, #4f9b6d); background: var(--mint, #e5f2e5); font-size: 10px; font-weight: 800; }
+.drafts-copy { max-width: 720px; margin: 11px 0 17px; color: var(--ink-soft, #526b60); font-size: 12px; line-height: 1.55; }
+.drafts-notice, .drafts-feedback { margin: 10px 0; padding: 10px 12px; border-radius: 8px; color: var(--ink-soft, #526b60); background: #f0f5ee; font-size: 11px; line-height: 1.5; }
+.drafts-feedback-error { color: #963b30; background: var(--red-bg, #fce9e4); }
+.drafts-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.drafts-actions .primary-button, .drafts-actions .secondary-button { min-height: 38px; padding: 9px 13px; font-size: 12px; }
+.drafts-actions button:disabled, .drafts-item-actions button:disabled { opacity: .48; cursor: not-allowed; }
+.drafts-offline { color: var(--muted, #7b8d83); font-size: 11px; }
+.drafts-empty { margin: 20px 0 0; padding: 20px; border: 1px dashed #cddbcf; border-radius: 9px; color: var(--muted, #7b8d83); font-size: 12px; text-align: center; }
+.drafts-list { display: grid; gap: 9px; margin: 18px 0 0; padding: 0; list-style: none; }
+.drafts-item { display: grid; grid-template-columns: minmax(150px, 1fr) auto; gap: 7px 14px; padding: 13px; border: 1px solid #e4ece2; border-radius: 9px; background: #fbfdf9; }
+.drafts-item-main strong, .drafts-item-main span { display: block; }
+.drafts-item-main strong { color: var(--ink, #19382d); font-size: 12px; }
+.drafts-item-main span { margin-top: 4px; color: var(--muted, #7b8d83); font-size: 10px; }
+.drafts-status { align-self: start; padding: 5px 8px; border-radius: 99px; font-size: 10px; font-weight: 800; }
+.drafts-status-draft { color: var(--ink-soft, #526b60); background: #edf2eb; }
+.drafts-status-queued, .drafts-status-syncing { color: var(--blue, #3d7486); background: var(--blue-bg, #e4f1f3); }
+.drafts-status-failed { color: var(--red, #b64f42); background: var(--red-bg, #fce9e4); }
+.drafts-item-error { grid-column: 1 / -1; color: #963b30; font-size: 10px; line-height: 1.4; }
+.drafts-item-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 13px; }
+.drafts-item-actions .text-button { font-size: 11px; }
+.drafts-item-actions .drafts-delete { color: var(--red, #b64f42); }
+.offline-status { margin: 16px 0; padding: 15px 17px; border: 1px solid #c6d8cb; border-left: 4px solid #4f825c; border-radius: 9px; color: var(--ink, #19382d); background: #eff6ed; font-size: 12px; line-height: 1.55; overflow-wrap: anywhere; }
+.offline-status-offline { border-color: #e4c592; border-left-color: #a96a20; background: #fff6e6; }
+.offline-status-connection { display: flex; align-items: center; gap: 9px; font-size: 14px; }
+.offline-status-dot { width: 9px; height: 9px; flex: 0 0 auto; border-radius: 50%; background: #4f825c; }
+.offline-status-offline .offline-status-dot { background: #a96a20; }
+.offline-status p { margin: 6px 0 0; }
+.offline-status-counts { display: flex; flex-wrap: wrap; gap: 7px 18px; margin-top: 10px; font-weight: 700; }
+.offline-status-time { color: var(--ink-soft, #526b60); }
+.offline-status-error { color: #963b30; font-weight: 600; }
+.offline-status-syncing { color: #285f70; font-weight: 700; }
+.offline-status-compact { max-width: 430px; margin: 0; padding: 9px 12px; font-size: 11px; }
+.offline-status-compact .offline-status-connection { font-size: 12px; }
+.drafts-actions .drafts-sync-button { min-height: 44px; padding: 11px 20px; font-weight: 800; }
+.drafts-actions button:focus-visible, .drafts-item-actions button:focus-visible { outline: 3px solid #3d7486; outline-offset: 3px; }
+@media (max-width: 560px) { .drafts-item { grid-template-columns: 1fr; } .drafts-status { justify-self: start; } }

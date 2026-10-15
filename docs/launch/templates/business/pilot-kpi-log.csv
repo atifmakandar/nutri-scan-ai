@@ -1,0 +1,2 @@
+row_status,pilot_id,week_start_date,kpi_name,kpi_value,unit,numerator,denominator,baseline_minutes,current_minutes,support_minutes,record_type,evidence_link,owner,notes,review_status
+PLACEHOLDER_NOT_MEASURED,[PILOT ID],[DATE],[KPI NAME],[KPI VALUE],DEFINE_UNIT_BEFORE_USE,[KPI VALUE],[KPI VALUE],[BASELINE MINUTES],[CURRENT MINUTES],[KPI VALUE],SET_REAL_OR_DEMO,[EVIDENCE LINK],[OWNER],[SUMMARY],LEGAL_ACCOUNTING_REVIEW_REQUIRED

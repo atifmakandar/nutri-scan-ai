@@ -1,14 +1,21 @@
 services:
-  backend:
-    image: python:3.12-slim
-    working_dir: /app
-    volumes: ["./backend:/app"]
-    command: sh -c "pip install -r requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NUTRI_SCAN_DB: ${NUTRI_SCAN_DB:-/data/nutri_scan.sqlite3}
+      NUTRI_SCAN_COOKIE_SECURE: ${NUTRI_SCAN_COOKIE_SECURE:-false}
+      NUTRI_SCAN_ORIGINS: ${NUTRI_SCAN_ORIGINS:-}
+      NUTRI_SCAN_STATIC_DIR: /app/frontend-dist
     ports: ["8000:8000"]
-  frontend:
-    image: node:22-alpine
-    working_dir: /app
-    volumes: ["./frontend:/app"]
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
-    ports: ["5173:5173"]
-    depends_on: [backend]
+    volumes:
+      - nutri_scan_data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  nutri_scan_data:

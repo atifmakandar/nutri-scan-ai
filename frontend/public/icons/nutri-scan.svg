@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>Nutri-Scan</title>
+  <path fill="#0d513d" d="M0 0h512v512H0z"/>
+  <ellipse fill="#bfe39a" cx="292" cy="125" rx="72" ry="28"/>
+  <path fill="#fff" d="M159 169h36l123 126V169h35v179h-36L195 222v126h-36z"/>
+</svg>

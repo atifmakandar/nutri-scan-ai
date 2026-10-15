@@ -1,0 +1,19 @@
+.reading-assist { margin-block: 1rem; padding: 1rem; border: 1px solid #68877d; border-radius: .8rem; background: #f5faf7; color: #163c30; }
+.reading-assist h3 { margin-top: 0; }
+.reading-assist-card { padding: .8rem 0; border-top: 1px solid #b6cbc1; }
+.reading-assist summary { cursor: pointer; font-weight: 700; min-height: 44px; padding-block: .6rem; }
+.reading-assist label { display: block; margin-block: .6rem; }
+.reading-assist select, .reading-assist textarea { display: block; width: 100%; min-height: 44px; padding: .5rem; border: 1px solid #68877d; border-radius: .35rem; color: #163c30; background: white; box-sizing: border-box; }
+.reading-assist textarea { min-height: 5rem; resize: vertical; }
+.reading-assist .reading-assist-check { display: flex; align-items: flex-start; gap: .6rem; min-height: 44px; padding-block: .3rem; }
+.reading-assist-check input { flex: 0 0 auto; width: 1.25rem; height: 1.25rem; margin-top: .15rem; accent-color: #185b40; }
+.reading-assist-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: .8rem; }
+.reading-assist-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-block: .8rem; }
+.reading-assist button { min-height: 44px; padding: .6rem .9rem; border: 1px solid #286047; border-radius: .4rem; color: #123c2c; background: #e1f2e8; cursor: pointer; margin: .3rem; }
+.reading-assist button:disabled { cursor: default; opacity: .6; }
+.reading-assist :focus-visible { outline: 3px solid #075caa; outline-offset: 3px; }
+.reading-assist-review { padding: .8rem; border: 2px solid #47735b; border-radius: .5rem; background: white; }
+.reading-assist dd { margin-inline-start: 0; margin-bottom: .5rem; overflow-wrap: anywhere; }
+.reading-assist dt { font-weight: 700; }
+.reading-assist-notice { font-size: .95rem; }
+.reading-assist-protocol code { white-space: pre-wrap; overflow-wrap: anywhere; }

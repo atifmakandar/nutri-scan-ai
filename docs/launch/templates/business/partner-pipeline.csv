@@ -1,0 +1,2 @@
+row_status,partner_id,partner_type,contact_reference,permission_status,current_stage,scope_and_methods_summary,fees_or_referral_terms_summary,last_contact_date,next_action,owner,due_date,evidence_link,review_status
+PLACEHOLDER_NOT_A_PARTNER,[PARTNER ID],[SEGMENT],RESTRICTED_CONTACT_REFERENCE_ONLY,[CONSENT STATUS],[STATUS],[SUMMARY],[SUMMARY],[DATE],[NEXT ACTION],[OWNER],[DUE DATE],[EVIDENCE LINK],LEGAL_ACCOUNTING_REVIEW_REQUIRED

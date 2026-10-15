@@ -1,0 +1,85 @@
+.farmer-home, .guided-screening {
+  color: var(--ink, #19382d);
+  background: var(--white, #fffefa);
+  border: 1px solid var(--line, #dfe9df);
+  border-radius: 18px;
+  padding: clamp(16px, 3vw, 30px);
+  margin-block: 24px;
+  min-width: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.farmer-home *, .guided-screening * { box-sizing: border-box; }
+.farmer-home h2, .guided-screening h2 { font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.25; }
+.farmer-home p, .guided-screening p { margin-block: 12px; }
+.farmer-home-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+.farmer-home-action {
+  display: flex; align-items: center; gap: 14px; min-height: 148px; padding: 20px;
+  color: #164833; background: #f0f7e9; border: 2px solid #cbdcc0; border-radius: 14px;
+  text-decoration: none;
+}
+.farmer-home-action:hover { background: #e5f1dc; border-color: #648740; }
+.farmer-home-action > span:nth-child(2) { flex: 1; min-width: 0; }
+.farmer-home-action strong { display: block; font-size: 1.2rem; line-height: 1.4; }
+.farmer-home-action small { display: block; margin-top: 8px; color: #415d4d; font-size: .95rem; line-height: 1.5; }
+.farmer-action-icon { display: grid; place-items: center; flex: 0 0 48px; width: 48px; height: 48px; border-radius: 12px; background: #d9eac9; font-size: 2rem; font-weight: 700; }
+.farmer-notice { padding: 14px 16px; border-inline-start: 4px solid #916019; border-radius: 6px; background: #fff4df; color: #654311; }
+.farmer-progress { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 0; margin: 24px 0 16px; list-style: none; }
+.farmer-progress li { display: flex; align-items: center; gap: 8px; padding-block: 12px; border-bottom: 3px solid #dfe9df; color: #526b60; }
+.farmer-progress li > span:first-child { display: grid; place-items: center; min-width: 32px; height: 32px; border: 1px solid currentColor; border-radius: 50%; }
+.farmer-progress li[aria-current="step"] { color: #0d513d; font-weight: 800; border-color: #0d513d; }
+.farmer-step-status { font-weight: 700; }
+.guided-screening section[hidden] { display: none; }
+.guided-screening h3 { margin: 24px 0 16px; font-size: 1.4rem; line-height: 1.4; scroll-margin-top: 90px; }
+.guided-screening h4 { margin: 20px 0 8px; font-size: 1.1rem; }
+.farmer-fieldset { min-width: 0; margin: 24px 0; padding: 18px; border: 1px solid #ccdace; border-radius: 12px; }
+.farmer-fieldset legend { padding-inline: 8px; color: #19382d; font-weight: 800; font-size: 1.1rem; }
+.guided-screening label { color: #19382d; font-size: 1rem; font-weight: 700; }
+.guided-screening input:not([type="radio"]):not([type="checkbox"]), .guided-screening select {
+  display: block; width: 100%; min-width: 0; min-height: 48px; margin: 8px 0 12px; padding: 10px 12px;
+  color: #19382d; background: #fff; border: 1px solid #809c89; border-radius: 8px; font: inherit;
+}
+.guided-screening input[readonly] { background: #edf2ea !important; }
+.guided-screening input[aria-invalid="true"], .guided-screening select[aria-invalid="true"] { border: 2px solid #a33628 !important; }
+.farmer-sample-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.farmer-sample-option { display: grid !important; grid-template-columns: 28px 1fr; align-items: center; gap: 8px; min-height: 200px; padding: 16px; border: 2px solid #b8ccaf; border-radius: 12px; cursor: pointer; }
+.farmer-sample-option:has(input:checked) { border-color: #0d513d; background: #edf6e7; }
+.farmer-sample-option input, .farmer-confirmation input { width: 24px; height: 24px; margin: 0; accent-color: #0d513d; }
+.farmer-sample-illustration { display: block; width: 140px; max-width: 100%; height: 90px; justify-self: center; }
+.farmer-sample-option strong, .farmer-sample-option > span { grid-column: 1 / -1; }
+.farmer-sample-option > span { color: #415d4d; font-weight: 400; }
+.farmer-readings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.farmer-range { color: #415d4d; font-size: .95rem; }
+.farmer-source-details { padding: 12px 16px; border: 1px solid #b8ccaf; border-radius: 12px; }
+.farmer-source-details summary { min-height: 48px; padding-block: 10px; cursor: pointer; font-weight: 700; }
+.farmer-field-error { color: #a12f22; font-weight: 700; }
+.farmer-measurement-help { min-width: 0; }
+.farmer-measurement-help :is(a, button, summary) { min-height: 48px; }
+.farmer-inline-link { display: inline-flex; align-items: center; min-height: 48px; padding: 8px 4px; color: #0d513d; text-decoration: underline; text-underline-offset: 3px; }
+.farmer-screening-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 24px; }
+.farmer-button { min-height: 48px; min-width: 100px; padding: 12px 24px; border: 2px solid #0d513d; border-radius: 10px; color: #fff; background: #0d513d; font: inherit; font-weight: 800; cursor: pointer; }
+.farmer-button:hover:not(:disabled) { background: #103d31; }
+.farmer-button-secondary { color: #0d513d; background: #edf6e7; }
+.farmer-button-secondary:hover:not(:disabled) { color: #fff; }
+.guided-screening button:disabled, .guided-screening input:disabled, .guided-screening select:disabled { opacity: .65; cursor: not-allowed; }
+.farmer-review-values { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 12px 0; }
+.farmer-review-values > div { padding: 12px; border: 1px solid #dfe9df; border-radius: 8px; background: #f7faf3; }
+.farmer-review-values dt { color: #415d4d; }
+.farmer-review-values dd { margin: 4px 0 0; font-weight: 800; font-size: 1.1rem; }
+.farmer-confirmation { display: flex !important; align-items: center; gap: 14px; min-height: 64px; padding: 16px; margin-top: 24px; border: 2px solid #b8ccaf; border-radius: 10px; cursor: pointer; }
+.farmer-confirmation input { flex: 0 0 24px; }
+.farmer-screening-footnote { color: #415d4d; font-size: .95rem; }
+.farmer-home a:focus-visible, .guided-screening :is(a, button, input, select, summary, h3):focus-visible { outline: 3px solid #226894; outline-offset: 4px; }
+@media (max-width: 1100px) {
+  .farmer-home-actions { grid-template-columns: 1fr; }
+  .farmer-home-action { min-height: 104px; }
+}
+@media (max-width: 600px) {
+  .farmer-progress { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .farmer-sample-options, .farmer-readings-grid, .farmer-review-values { grid-template-columns: 1fr; }
+  .farmer-sample-option { min-height: 180px; }
+  .farmer-fieldset { padding: 12px; }
+  .farmer-screening-actions .farmer-button { flex: 1; }
+  .farmer-screening-actions .farmer-inline-link { flex-basis: 100%; }
+}

@@ -1,3 +1,6 @@
+import argparse
+from pathlib import Path
+
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -1079,7 +1082,15 @@ num(s, 42)
 sn(s, "Future scope includes 8 expansion areas. Demo shows 10-step farmer journey from sample insertion to sharing results with cooperative.")
 
 # ========== SAVE ==========
-output_path = r"C:\Users\MD Atif\OneDrive\Documents\Default Project\FeedIQ_SIH_Presentation.pptx"
-prs.save(output_path)
-print(f"Presentation saved to: {output_path}")
+parser = argparse.ArgumentParser(description="Generate the Nutri-Scan SIH presentation")
+parser.add_argument(
+    "--output",
+    type=Path,
+    default=Path("artifacts") / "FeedIQ_SIH_Presentation.pptx",
+    help="Relative output path (default: artifacts/FeedIQ_SIH_Presentation.pptx)",
+)
+args = parser.parse_args()
+args.output.parent.mkdir(parents=True, exist_ok=True)
+prs.save(args.output)
+print(f"Presentation saved to: {args.output}")
 print(f"Total slides: {len(prs.slides)}")

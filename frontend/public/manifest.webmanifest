@@ -1,0 +1,17 @@
+{
+  "id": "/",
+  "name": "Nutri-Scan AI — Feed & Silage Screening",
+  "short_name": "Nutri-Scan",
+  "description": "Feed screening prototype with public offline field help. Reconnect and sign in for private farm data.",
+  "lang": "en",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f8f2",
+  "theme_color": "#0d513d",
+  "icons": [
+    { "src": "/icons/nutri-scan-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/nutri-scan-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/nutri-scan.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

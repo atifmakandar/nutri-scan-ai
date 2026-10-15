@@ -1,0 +1,64 @@
+.fieldwork { --fw-ink: #183d2c; --fw-line: #b9cbbd; --fw-soft: #f3f7f1; color: var(--fw-ink); background: #fff; border: 1px solid var(--fw-line); border-radius: 18px; padding: clamp(16px, 3vw, 30px); font-size: 18px; line-height: 1.6; scroll-margin-top: 24px; }
+.fieldwork *, .fieldwork *::before, .fieldwork *::after { box-sizing: border-box; }
+.fieldwork h2 { font-size: clamp(26px, 4vw, 34px); }
+.fieldwork h3 { font-size: 23px; }
+.fieldwork h4, .fieldwork legend { font-size: 20px; font-weight: 750; }
+.fieldwork p, .fieldwork h3, .fieldwork h4, .fieldwork dd, .fieldwork label, .fieldwork button { overflow-wrap: anywhere; }
+.fieldwork button, .fieldwork input, .fieldwork select, .fieldwork textarea { font: inherit; }
+.fieldwork button, .fieldwork input:not([type="radio"]):not([type="checkbox"]), .fieldwork select, .fieldwork textarea { min-height: 48px; border: 1px solid #668372; border-radius: 9px; padding: 10px 14px; max-width: 100%; }
+.fieldwork button { background: #fff; color: var(--fw-ink); cursor: pointer; font-weight: 700; white-space: normal; }
+.fieldwork button.fw-primary, .fieldwork [role="tab"][aria-selected="true"] { color: #fff; background: #24583b; border-color: #24583b; }
+.fieldwork button:disabled, .fieldwork input:disabled, .fieldwork select:disabled, .fieldwork textarea:disabled { opacity: .65; cursor: not-allowed; }
+.fieldwork :focus-visible { outline: 3px solid #955b13; outline-offset: 4px; }
+.fieldwork input[readonly] { background: #e9eee9; }
+.fieldwork input, .fieldwork select, .fieldwork textarea { background: #fff; color: var(--fw-ink); width: 100%; }
+.fieldwork textarea { resize: vertical; }
+.fieldwork [aria-invalid="true"] { border: 2px solid #a12f25; }
+.fieldwork .fw-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 22px 0; }
+.fieldwork .fw-panel[hidden] { display: none; }
+.fieldwork .fw-panel-title { border-bottom: 2px solid var(--fw-line); padding-bottom: 12px; }
+.fieldwork .fw-form { background: var(--fw-soft); padding: 18px; border-radius: 12px; margin: 18px 0; }
+.fieldwork fieldset { min-width: 0; margin: 0; padding: 14px; border: 1px solid var(--fw-line); border-radius: 10px; }
+.fieldwork .fw-form > fieldset { border: 0; padding: 0; }
+.fieldwork legend { padding: 0 6px; }
+.fieldwork .fw-form-grid, .fieldwork .fw-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.fieldwork .fw-form-grid { margin: 16px 0; }
+.fieldwork .fw-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.fieldwork .fw-field label { font-weight: 700; }
+.fieldwork .fw-wide { grid-column: 1 / -1; }
+.fieldwork .fw-hint { color: #395b45; font-size: 17px; }
+.fieldwork .fw-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+.fieldwork .fw-cards { display: grid; gap: 20px; }
+.fieldwork .fw-card { padding: 20px; border: 1px solid var(--fw-line); border-radius: 12px; background: #fff; margin: 16px 0; min-width: 0; }
+.fieldwork .fw-card h3, .fieldwork .fw-card h4 { margin-top: 0; }
+.fieldwork .fw-details { margin: 16px 0; }
+.fieldwork .fw-details dt { font-size: 16px; color: #395b45; font-weight: 700; }
+.fieldwork .fw-details dd { margin: 0; white-space: pre-wrap; }
+.fieldwork .fw-snapshot, .fieldwork .fw-attachments, .fieldwork .fw-status-form { border-top: 1px solid var(--fw-line); padding-top: 18px; margin-top: 20px; }
+.fieldwork .fw-notice, .fieldwork .fw-empty { background: #f3f6e9; border-left: 5px solid #597446; padding: 14px; border-radius: 6px; }
+.fieldwork .fw-error { background: #fff3ef; border: 2px solid #9e3326; border-radius: 8px; padding: 14px; color: #822d22; }
+.fieldwork .fw-field-error { color: #822d22; font-size: 17px; margin: 0; }
+.fieldwork .fw-badge { display: inline-block; background: #eaf1e8; padding: 5px 12px; border-radius: 8px; font-weight: 700; }
+.fieldwork .fw-radio-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.fieldwork .fw-radio-row label, .fieldwork .fw-collection label { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px; cursor: pointer; }
+.fieldwork input[type="radio"], .fieldwork input[type="checkbox"] { width: 24px; height: 24px; flex: 0 0 24px; accent-color: #24583b; margin: 0; }
+.fieldwork .fw-collection label { align-items: flex-start; margin: 8px 0; }
+.fieldwork .fw-collection input { margin-top: 4px; }
+.fieldwork .fw-pagination { border-top: 1px solid var(--fw-line); margin-top: 20px; padding-top: 16px; }
+.fieldwork .fw-pagination select { width: auto; margin-left: 10px; }
+.fieldwork .fw-upload { display: grid; gap: 12px; margin-top: 18px; }
+.fieldwork .fw-upload input { display: block; margin-top: 8px; padding: 8px; }
+.fieldwork .fw-attachment-list { list-style: none; padding: 0; }
+.fieldwork .fw-attachment-list li { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid var(--fw-line); padding: 12px 0; }
+.fieldwork .fw-attachment-list span { overflow-wrap: anywhere; min-width: 0; }
+.fieldwork figure { margin: 14px 0; }
+.fieldwork figure img { display: block; max-width: 100%; max-height: 340px; object-fit: contain; border-radius: 8px; }
+.fieldwork figcaption { overflow-wrap: anywhere; }
+.fieldwork .fw-status-form button { margin-top: 14px; }
+@media (max-width: 640px) {
+  .fieldwork .fw-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fieldwork .fw-form-grid, .fieldwork .fw-details { grid-template-columns: minmax(0, 1fr); }
+  .fieldwork .fw-card, .fieldwork .fw-form { padding: 14px; }
+  .fieldwork .fw-actions > button { flex: 1 1 160px; }
+  .fieldwork .fw-attachment-list button { width: 100%; }
+}

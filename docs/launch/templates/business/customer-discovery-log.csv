@@ -1,0 +1,2 @@
+row_status,interview_id,interview_date,segment,respondent_role,consent_status,problem_and_incumbent_summary,buyer_user_payer_summary,measurement_availability_summary,current_spend_and_price_evidence,baseline_minutes,evidence_link,qualification_status,next_action,owner,due_date,review_status
+PLACEHOLDER_NOT_AN_INTERVIEW,[INTERVIEW ID],[DATE],[SEGMENT],[ROLE],[CONSENT STATUS],[SUMMARY],[SUMMARY],[SUMMARY],[SUMMARY],[BASELINE MINUTES],[EVIDENCE LINK],[STATUS],[NEXT ACTION],[OWNER],[DUE DATE],LEGAL_ACCOUNTING_REVIEW_REQUIRED

@@ -1,0 +1,58 @@
+.farmer-results, .fr-comparison, .fr-share {
+  color: #24382b;
+  line-height: 1.6;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.farmer-results h3, .farmer-results h4, .fr-comparison h4, .fr-share h4 { margin: 0 0 .65rem; line-height: 1.4; }
+.fr-risk { display: flex; align-items: center; gap: .8rem; padding: 1rem; border: 2px solid #647765; border-radius: .8rem; }
+.fr-risk h3 { margin: 0; font-size: 1.25rem; }
+.fr-risk-icon { font-size: 1.8rem; font-weight: 800; flex-shrink: 0; }
+.fr-risk-low { background: #eff5ef; }
+.fr-risk-medium { background: #fff6e7; border-color: #946018; }
+.fr-risk-high { background: #fff0ed; border-color: #a03c30; }
+.fr-risk-unknown { background: #f2f3f4; }
+.fr-safety { padding: 1rem; border: 2px solid #946018; border-inline-start-width: 6px; background: #fff6e7; border-radius: .5rem; }
+.fr-explanation, .fr-next, .fr-details, .fr-comparison, .fr-share { margin-block: 1.25rem; }
+.fr-next { background: #f2f6f1; border: 1px solid #c6d4c7; border-radius: .7rem; padding: 1rem; }
+.farmer-results ul, .farmer-results ol { padding-inline-start: 1.5rem; margin-block: .5rem; }
+.farmer-results li + li { margin-top: .55rem; }
+.fr-note { color: #4e5f53; font-size: .9rem; }
+.fr-details { border: 1px solid #c6d4c7; border-radius: .6rem; padding: .85rem; }
+.fr-details summary { cursor: pointer; font-weight: 700; padding-block: .3rem; }
+.fr-values { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: .8rem; }
+.fr-values > div { border-bottom: 1px solid #dce5dc; padding-bottom: .6rem; }
+.fr-values dt { font-size: .85rem; color: #4e5f53; }
+.fr-values dd { margin: .25rem 0 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.fr-comparison, .fr-share { border-top: 1px solid #c6d4c7; padding-top: 1.1rem; }
+.fr-table-scroll { overflow-x: auto; max-width: 100%; }
+.fr-comparison table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: .9rem; }
+.fr-comparison caption { text-align: start; margin-bottom: .7rem; }
+.fr-comparison th, .fr-comparison td { padding: .7rem; border-bottom: 1px solid #c6d4c7; text-align: start; vertical-align: top; }
+.fr-comparison thead { background: #f2f6f1; }
+.fr-button { display: inline-block; cursor: pointer; padding: .65rem .9rem; min-height: 48px; border: 1px solid #426047; border-radius: .5rem; color: #243e2b; background: #f2f6f1; font: inherit; line-height: 1.4; }
+.fr-button:disabled { opacity: .6; cursor: default; }
+.fr-button-quiet { background: transparent; margin: .4rem; }
+.fr-actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-block: .8rem; }
+.fr-share-options { display: flex; gap: .65rem 1.2rem; flex-wrap: wrap; margin-block: .8rem; align-items: center; }
+.fr-share-options label, .fr-evidence label { display: flex; align-items: center; gap: .5rem; min-height: 48px; cursor: pointer; }
+.fr-share-options input { width: 1.2rem; height: 1.2rem; margin: 0; }
+.fr-preview { margin-top: 1rem; }
+.fr-preview > label { display: block; font-weight: 700; margin-bottom: .5rem; }
+.fr-preview textarea { box-sizing: border-box; width: 100%; max-width: 100%; resize: vertical; min-height: 14rem; padding: .8rem; border: 1px solid #647765; border-radius: .5rem; color: #24382b; background: #fff; font: inherit; font-size: .9rem; line-height: 1.6; user-select: text; }
+.fr-external-note { padding: .7rem; border-inline-start: 4px solid #946018; background: #fff6e7; }
+.fr-button:focus-visible, .fr-details summary:focus-visible, .fr-table-scroll:focus-visible, .fr-preview textarea:focus-visible, .fr-share-options input:focus-visible, .fr-evidence input:focus-visible { outline: 3px solid #235ea0; outline-offset: 3px; }
+.fr-evidence { margin-block: 1rem; padding: .8rem; border: 1px solid #c6d4c7; border-radius: .5rem; }
+.fr-evidence h5 { margin: 0; font-size: 1rem; }
+.fr-evidence fieldset { min-width: 0; margin-block: .8rem; border: 1px solid #c6d4c7; }
+.fr-evidence input { width: 1.2rem; height: 1.2rem; flex-shrink: 0; }
+.fr-evidence .fr-evidence-list, .fr-evidence .fr-evidence-thumbnails { list-style: none; padding: 0; }
+.fr-evidence-thumbnails { display: flex; flex-wrap: wrap; gap: .8rem; }
+.fr-evidence-thumbnails li, .farmer-results .fr-evidence-thumbnails li + li { max-width: 10rem; margin: 0; }
+.fr-evidence-thumbnails img { display: block; width: 100%; height: 7rem; object-fit: contain; background: #f2f6f1; }
+.fr-evidence-thumbnails span { display: block; font-size: .9rem; }
+@media (max-width: 540px) {
+  .fr-risk { align-items: flex-start; }
+  .fr-actions { flex-direction: column; }
+  .fr-comparison th, .fr-comparison td { padding: .55rem; min-width: 6rem; }
+}
