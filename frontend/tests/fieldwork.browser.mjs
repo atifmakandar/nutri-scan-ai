@@ -244,7 +244,7 @@ try {
   await page.evaluate(() => window.fieldworkTest.setLocale('hi'));
   await page.getByRole('tab', { name: 'त्वरित अवलोकन', exact: true }).click();
   await page.getByRole('tab', { name: 'त्वरित अवलोकन', exact: true }).press('End');
-  assert.equal(await page.getByRole('tab', { name: 'जांच में सहायता', exact: true }).getAttribute('aria-selected'), 'true');
+  assert.equal(await page.getByRole('tab', { name: 'समीक्षा और उपकरण', exact: true }).getAttribute('aria-selected'), 'true');
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
   await page.evaluate(() => { window.fieldworkTest.setLocale('en'); window.fieldworkTest.setRole('owner'); });
   await page.getByRole('tab', { name: 'Batches', exact: true }).waitFor();
