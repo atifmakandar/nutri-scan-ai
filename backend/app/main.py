@@ -204,7 +204,7 @@ def create_app(db_path: str | os.PathLike[str] | None = None) -> FastAPI:
             ScanCreateRequest(
                 farm_id=user["farm_id"], batch_id=f"LEGACY-{uuid4().hex[:8].upper()}",
                 sample_type=req.sample_type, source_mode="esp32",
-                inputs=InputBundle(sensor=req.sensor, nir=req.nir, vision=req.vision),
+                inputs=InputBundle(sensor=req.sensor, nir=req.nir, vision=req.vision, supplemental=req.supplemental),
             ), result,
         )
         return result
@@ -219,7 +219,11 @@ def create_app(db_path: str | os.PathLike[str] | None = None) -> FastAPI:
         if req.farm_id is not None and req.farm_id != user["farm_id"]:
             raise HTTPException(status_code=403, detail="Farm scope cannot be changed")
         request = req.model_copy(update={"farm_id": user["farm_id"]})
-        result = analyze(AnalyzeRequest(sample_type=request.sample_type, sensor=request.inputs.sensor, nir=request.inputs.nir, vision=request.inputs.vision))
+        result = analyze(AnalyzeRequest(
+            sample_type=request.sample_type, sensor=request.inputs.sensor,
+            nir=request.inputs.nir, vision=request.inputs.vision,
+            supplemental=request.inputs.supplemental,
+        ))
         try:
             return repository.save_scan(request, result)
         except ConflictError as exc:

@@ -87,6 +87,33 @@ class PhaseOneTests(unittest.TestCase):
                 },
             )
 
+    def test_optional_reported_capabilities_are_preserved_without_becoming_detection_claims(self):
+        request = sample_request()
+        result = analyze(
+            AnalyzeRequest(
+                sample_type=request.sample_type,
+                sensor=request.inputs.sensor,
+                nir=request.inputs.nir,
+                vision=request.inputs.vision,
+                supplemental={
+                    "energy_mj_per_kg": 10.5,
+                    "calcium_pct": 0.7,
+                    "urea_concern_score": 0.8,
+                    "aflatoxin_concern_score": 0.2,
+                },
+            )
+        )
+
+        self.assertEqual(result.parameters["energy_mj_per_kg"], 10.5)
+        self.assertEqual(result.parameters["calcium_pct"], 0.7)
+        self.assertEqual(result.parameters["urea_concern_score"], 0.8)
+        self.assertEqual(
+            [(signal.code, signal.status) for signal in result.capability_signals],
+            [("energy_reported", "reported"), ("minerals_reported", "reported"), ("urea_concern", "review_required"), ("aflatoxin_concern", "review_required")],
+        )
+        self.assertNotIn("Urea adulteration detected", result.anomalies)
+        self.assertTrue(any("qualified laboratory" in advisory for advisory in result.advisory))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -44,6 +44,18 @@ review drafts for a bounded workflow pilot, not commercial, legal, scientific or
 production approval. Use its current claims matrix rather than older aspirational
 architecture text for customer-facing statements.
 
+## Buildathon capability scope
+
+The current demo adds optional reported nutrition values and review flags for
+adulteration, toxin, mineral, sand/silica, and fungal concerns. It also displays
+humidity in saved results and reports. These are operator- or laboratory-supplied
+inputs, not automatic detections. Photos remain evidence only, storage history is
+spot-check based, and the ESP32 path is a reviewed transport demonstration.
+
+See [`docs/capability-matrix.md`](docs/capability-matrix.md) for the complete
+feature-to-claim map and the validation evidence still required before production
+nutrition, contamination, toxin, or safety claims.
+
 ## Phase 1 vertical slice
 
 The web flow is connected to the API and SQLite repository:

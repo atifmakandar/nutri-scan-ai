@@ -1,0 +1,15 @@
+file '../assets/slide-1.png'
+duration 10
+file '../assets/slide-2.png'
+duration 10
+file '../assets/slide-3.png'
+duration 14
+file '../assets/slide-4.png'
+duration 15
+file '../assets/slide-5.png'
+duration 19
+file '../assets/slide-6.png'
+duration 13
+file '../assets/slide-7.png'
+duration 9
+file '../assets/slide-7.png'

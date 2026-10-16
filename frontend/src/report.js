@@ -15,6 +15,14 @@ const PARAMETER_META = new Map([
   ['mold_score', ['Mould indicator', '0–1 scale']],
   ['color_anomaly', ['Colour anomaly', '0–1 scale']],
   ['surface_damage', ['Surface damage', '0–1 scale']],
+  ['energy_mj_per_kg', ['Reported energy value', 'MJ/kg']],
+  ['calcium_pct', ['Reported calcium', '%']],
+  ['phosphorus_pct', ['Reported phosphorus', '%']],
+  ['mineral_concern_score', ['Mineral concern input', '0–1 scale']],
+  ['urea_concern_score', ['Urea concern input', '0–1 scale']],
+  ['sand_silica_concern_score', ['Sand/silica concern input', '0–1 scale']],
+  ['aflatoxin_concern_score', ['Aflatoxin concern input', '0–1 scale']],
+  ['fungal_concern_score', ['Fungal concern input', '0–1 scale']],
 ]);
 
 function isDictionary(value) {
@@ -67,6 +75,17 @@ function detail(label, value) {
 function savedList(values, emptyMessage) {
   if (!Array.isArray(values) || values.length === 0) return `<p>${escapeHtml(emptyMessage)}</p>`;
   return `<ul>${values.map((value) => `<li>${escapeHtml(value)}</li>`).join('')}</ul>`;
+}
+
+function capabilitySignals(values) {
+  if (!Array.isArray(values) || values.length === 0) return '<p>No optional capability inputs recorded.</p>';
+  const labels = {
+    energy_reported: 'Reported energy value', minerals_reported: 'Reported mineral values',
+    mineral_concern: 'Mineral concern input', urea_concern: 'Urea concern input',
+    sand_silica_concern: 'Sand/silica concern input', aflatoxin_concern: 'Aflatoxin concern input',
+    fungal_concern: 'Fungal concern input',
+  };
+  return `<ul>${values.map((signal) => `<li>${escapeHtml(labels[signal?.code] || signal?.code)} — ${escapeHtml(signal?.status === 'reported' ? 'Reported input' : 'Qualified confirmation required')}</li>`).join('')}</ul>`;
 }
 
 function measurements(parameters) {
@@ -205,9 +224,10 @@ export function buildReportHtml(record) {
     <p>Heuristic confidence is a prototype indicator, not a validated probability or a measure of diagnostic accuracy.</p>
   </section>
 
-  <section aria-labelledby="measurements-heading">
-    <h2 id="measurements-heading">Measurements</h2>
-    ${measurements(result.parameters)}
+   <section aria-labelledby="measurements-heading">
+     <h2 id="measurements-heading">Measurements</h2>
+     <p class="subtle">Reported nutrition values and concern inputs are operator- or laboratory-supplied. They are not confirmed detection results.</p>
+     ${measurements(result.parameters)}
   </section>
   <section aria-labelledby="anomalies-heading">
     <h2 id="anomalies-heading">Anomalies &amp; indicators</h2>
@@ -216,6 +236,11 @@ export function buildReportHtml(record) {
   <section aria-labelledby="advisory-heading">
     <h2 id="advisory-heading">Advisories</h2>
     ${savedList(result.advisory, 'No advisory entries recorded.')}
+  </section>
+  <section aria-labelledby="capability-heading">
+    <h2 id="capability-heading">Capability inputs &amp; review flags</h2>
+    <p>These values are operator- or laboratory-supplied. They are not confirmed detection results and do not establish safety.</p>
+    ${capabilitySignals(result.capability_signals)}
   </section>
   <section aria-labelledby="model-heading">
     <h2 id="model-heading">Model &amp; calibration</h2>

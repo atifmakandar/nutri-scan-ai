@@ -39,8 +39,26 @@ export default function FarmerResults({ record, api, t = english, renderListen, 
     </section>
     <p className="fr-note">{summary.confidenceNotice}</p>
     <ResultDetails record={record} t={text} />
+    <CapabilitySignals signals={record.result.capability_signals} t={text} />
     <SavedComparison record={record} api={api} t={text} />
     <ShareSummary record={record} api={api} t={text} farmName={farmName} />
+  </section>;
+}
+
+function CapabilitySignals({ signals, t }) {
+  if (!Array.isArray(signals) || signals.length === 0) return null;
+  const labels = {
+    energy_reported: 'Reported energy value', minerals_reported: 'Reported mineral values',
+    mineral_concern: 'Mineral concern input', urea_concern: 'Urea concern input',
+    sand_silica_concern: 'Sand/silica concern input', aflatoxin_concern: 'Aflatoxin concern input',
+    fungal_concern: 'Fungal concern input',
+  };
+  return <section className="fr-explanation" aria-labelledby="capability-signals-heading">
+    <h4 id="capability-signals-heading">{t('Capability inputs and review flags')}</h4>
+    <p className="fr-note">{t('These are operator- or laboratory-supplied inputs. They are not confirmed detection results and do not establish safety.')}</p>
+    <ul>{signals.map((signal, index) => <li key={`${signal.code}-${index}`}>
+      {t(labels[signal.code] || signal.code)} — {signal.status === 'reported' ? t('Reported input') : t('Qualified confirmation required')}
+    </li>)}</ul>
   </section>;
 }
 

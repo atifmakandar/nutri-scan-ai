@@ -219,13 +219,13 @@ const existingCopy = [
 // Keep the spelling and punctuation identical to the backend. The source check
 // below catches added or changed engine messages without needing Python or an API.
 const engineMessages = [
-  'Visual mould indicator detected',
+  'Operator-reported visible mould indicator requires review',
   'Unusual sample colour pattern',
-  'Elevated storage temperature',
+  'Elevated temperature in supplied storage reading',
   'Silage pH outside prototype target range',
   'No major anomaly indicator in supplied prototype inputs',
-  'Isolate the affected batch and verify with a qualified test before feeding.',
-  'Inspect storage ventilation and temperature conditions.',
+  'Isolate the affected batch and verify the operator-reported mould concern with a qualified test before feeding.',
+  'Inspect storage ventilation and temperature conditions; this is a spot-check, not continuous monitoring.',
   'Review fermentation and storage conditions; confirm pH with a validated method.',
   'Prototype assessment is within the acceptable screening band; continue routine monitoring.',
   'Use the result as a screening signal and consider confirmatory laboratory testing.',

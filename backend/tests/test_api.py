@@ -2,6 +2,7 @@
 
 import copy
 import io
+import json
 import os
 import sqlite3
 import tempfile
@@ -278,6 +279,50 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(len(self.client.get("/api/v1/scans").json()), 1)
         for request_id in ("", "x" * 81):
             self.assertEqual(self.client.post("/api/v1/scans", headers=ORIGIN, json=scan_body(client_request_id=request_id)).status_code, 422)
+
+    def test_optional_capability_inputs_survive_api_storage_and_restart_readback(self):
+        self.register()
+        supplemental = {
+            "energy_mj_per_kg": 10.5,
+            "calcium_pct": 0.7,
+            "phosphorus_pct": 0.0,
+            "mineral_concern_score": 0.5,
+            "urea_concern_score": 0.8,
+            "sand_silica_concern_score": 0.2,
+            "aflatoxin_concern_score": 0.6,
+            "fungal_concern_score": 0.0,
+        }
+        payload = scan_body(inputs={**INPUTS, "supplemental": supplemental})
+
+        saved = self.client.post("/api/v1/scans", headers=ORIGIN, json=payload)
+        self.assertEqual(saved.status_code, 201, saved.text)
+        record = saved.json()
+        parameters = record["result"]["parameters"]
+        self.assertEqual({field: parameters[field] for field in supplemental}, supplemental)
+        self.assertEqual(
+            [(signal["code"], signal["status"]) for signal in record["result"]["capability_signals"]],
+            [
+                ("energy_reported", "reported"),
+                ("minerals_reported", "reported"),
+                ("mineral_concern", "review_required"),
+                ("urea_concern", "review_required"),
+                ("sand_silica_concern", "review_required"),
+                ("aflatoxin_concern", "review_required"),
+                ("fungal_concern", "review_required"),
+            ],
+        )
+        self.assertTrue(any("not detected by this prototype" in advisory for advisory in record["result"]["advisory"]))
+
+        with open_database(self.database) as db:
+            stored_inputs = json.loads(db.execute("SELECT inputs_json FROM scans WHERE id = ?", (record["scan"]["id"],)).fetchone()[0])
+        self.assertEqual(stored_inputs["supplemental"], supplemental)
+
+        restarted = self.new_client(create_app(self.database))
+        login = restarted.post("/api/v1/auth/login", headers=ORIGIN, json={"username": "owner", "password": PASSWORD})
+        self.assertEqual(login.status_code, 200, login.text)
+        loaded = restarted.get(f"/api/v1/scans/{record['scan']['id']}")
+        self.assertEqual(loaded.status_code, 200, loaded.text)
+        self.assertEqual(loaded.json(), record)
 
     def test_concurrent_scan_retries_create_one_row(self):
         self.register()

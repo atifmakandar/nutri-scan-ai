@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   createEmptyScreening, english, getScreeningBatches, parseReading, parseScreening,
-  SCREENING_GROUPS, screeningStepErrors, screeningTransition, updateScreeningReading, validateScreening,
+  SCREENING_GROUPS, SCREENING_OPTIONAL_GROUPS, screeningStepErrors, screeningTransition, updateScreeningReading, validateScreening,
 } from './screening.js';
 import { snapshotDraftForm } from './drafts.js';
 
@@ -93,6 +93,18 @@ test('canonical parsing returns only validated finite numbers accepted by the ex
   assert.deepEqual(snapshotDraftForm(parsed.value, identity), parsed.value);
   assert.deepEqual(form, before);
   assert.throws(() => snapshotDraftForm(updateScreeningReading(form, 'ph', ''), identity), /Complete every reading/);
+});
+
+test('optional reported capability inputs remain optional and are not detection claims', () => {
+  let form = complete();
+  form = updateScreeningReading(form, 'energy_mj_per_kg', '10.5');
+  form = updateScreeningReading(form, 'urea_concern_score', '0.8');
+  const parsed = parseScreening(form);
+  assert.deepEqual(parsed.errors, {});
+  assert.deepEqual(parsed.value.inputs.supplemental, { energy_mj_per_kg: 10.5, urea_concern_score: 0.8 });
+  const empty = parseScreening(complete());
+  assert.equal(empty.value.inputs.supplemental, undefined);
+  assert.equal(SCREENING_OPTIONAL_GROUPS[0].fields.length, 8);
 });
 
 test('saved batches deduplicate by farm/sample/batch and never mix farms or sample types', () => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import {
-  english, getScreeningBatches, SCREENING_GROUPS, SCREENING_SOURCES,
+  english, getScreeningBatches, SCREENING_GROUPS, SCREENING_OPTIONAL_GROUPS, SCREENING_SOURCES,
   screeningFieldStep, screeningTransition, updateScreeningReading, validateScreening,
 } from './screening.js';
 import './farmer-screening.css';
@@ -108,11 +108,11 @@ export default function GuidedScreening({ form, onChange, onSubmit, disabled = f
       <section hidden={step !== 2} aria-labelledby={`${id}-step-2`}>
         <h3 id={`${id}-step-2`} data-screening-heading="2" tabIndex={-1}>{t(STEPS[2])}</h3>
         {step === 2 && renderAssist?.()}
-        <ScreeningReadings {...shared} renderHelp={renderHelp} />
+        <ScreeningReadings {...shared} renderHelp={renderHelp} showOptional />
       </section>
       <section hidden={step !== 3} aria-labelledby={`${id}-step-3`}>
         <h3 id={`${id}-step-3`} data-screening-heading="3" tabIndex={-1}>{t(STEPS[3])}</h3>
-        <ScreeningReview form={form} t={t} />
+        <ScreeningReview form={form} t={t} showOptional />
         <label className="farmer-confirmation" htmlFor={`${id}-confirm`}>
           <input id={`${id}-confirm`} data-screening-field="confirmation" type="checkbox" checked={confirmed} disabled={locked}
             aria-invalid={confirmationAttempted && !confirmed ? true : undefined}
@@ -192,7 +192,7 @@ export function ScreeningBatch({ form, onChange, history = [], disabled, t = eng
   </fieldset>;
 }
 
-export function ScreeningReadings({ form, onChange, disabled, t = english, id = 'readings', errors = {}, onBlur = () => {}, renderHelp }) {
+export function ScreeningReadings({ form, onChange, disabled, t = english, id = 'readings', errors = {}, onBlur = () => {}, renderHelp, showOptional = false }) {
   return <>
     <p className="farmer-notice">{t('All 10 readings are required by the screening service. Missing measurements block screening. Use measurement help; do not invent values.')}</p>
     <details className="farmer-source-details" open={errors.source_mode ? true : undefined}>
@@ -223,12 +223,28 @@ export function ScreeningReadings({ form, onChange, disabled, t = english, id = 
           <FieldError id={id} fieldKey={field.key} errors={errors} />
           <div className="farmer-measurement-help">{renderHelp?.(field.key) ?? <a className="farmer-inline-link" href="#farmer-help">{t('Help with {field}', { field: t(field.label) })}</a>}</div>
         </div>)}
+       </div>
+     </fieldset>)}
+    {showOptional && SCREENING_OPTIONAL_GROUPS.map((group) => <fieldset className="farmer-fieldset farmer-optional-fieldset" disabled={disabled} key={group.key}>
+      <legend>{t(group.title)}</legend><p>{t(group.description)}</p>
+      <div className="farmer-readings-grid">
+        {group.fields.map((field) => <div className="farmer-reading" key={field.key}>
+          <label htmlFor={`${id}-${field.key}`}>{t(field.label)}{field.unit ? ` (${field.unit})` : ''}</label>
+          <input id={`${id}-${field.key}`} data-screening-field={field.key} name={`inputs.${group.key}.${field.key}`}
+            type="number" inputMode="decimal" min={field.min} max={field.max} step="any"
+            value={form.inputs?.[group.key]?.[field.key] ?? ''}
+            onChange={(event) => onChange(updateScreeningReading(form, field.key, event.target.value))} onBlur={() => onBlur(field.key)}
+            aria-invalid={errors[field.key] ? true : undefined}
+            aria-describedby={`${id}-${field.key}-range${errors[field.key] ? ` ${id}-${field.key}-error` : ''}`} />
+          <p className="farmer-range" id={`${id}-${field.key}-range`}>{t('Optional reported input; leave blank when unavailable.')}</p>
+          <FieldError id={id} fieldKey={field.key} errors={errors} />
+        </div>)}
       </div>
     </fieldset>)}
   </>;
 }
 
-export function ScreeningReview({ form, t = english }) {
+export function ScreeningReview({ form, t = english, showOptional = false }) {
   const display = (value) => value === '' || value === null || value === undefined ? t('Not entered') : String(value);
   return <div className="farmer-review">
     <p>{t('Check every value against your measurements before submitting.')}</p>
@@ -240,6 +256,13 @@ export function ScreeningReview({ form, t = english }) {
     </dl>
     {SCREENING_GROUPS.map((group) => <div key={group.key}>
       <h4>{t(group.title)}</h4>
+      <dl className="farmer-review-values">{group.fields.map((field) => {
+        const value = form.inputs?.[group.key]?.[field.key];
+        return <div key={field.key}><dt>{t(field.label)}</dt><dd>{display(value)}{value !== '' && value != null && field.unit ? ` ${field.unit}` : ''}</dd></div>;
+      })}</dl>
+    </div>)}
+    {showOptional && SCREENING_OPTIONAL_GROUPS.map((group) => <div key={group.key}>
+      <h4>{t(group.title)}</h4><p>{t('Optional values are reported inputs and concerns for review; they are not confirmed detection results.')}</p>
       <dl className="farmer-review-values">{group.fields.map((field) => {
         const value = form.inputs?.[group.key]?.[field.key];
         return <div key={field.key}><dt>{t(field.label)}</dt><dd>{display(value)}{value !== '' && value != null && field.unit ? ` ${field.unit}` : ''}</dd></div>;

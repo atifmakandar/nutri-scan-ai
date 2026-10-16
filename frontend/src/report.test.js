@@ -19,12 +19,25 @@ function savedRecord() {
       },
       anomalies: ['No major anomaly indicator in supplied prototype inputs', 'Second saved indicator'],
       advisory: ['Continue routine monitoring.', 'Confirm with a qualified laboratory.'],
+      capability_signals: [
+        { code: 'energy_reported', status: 'reported', source: 'operator_or_lab_input' },
+        { code: 'urea_concern', status: 'review_required', source: 'operator_or_lab_input' },
+      ],
       assessment: {
         kind: 'prototype_screening', model_version: 'prototype-baseline-0.1', calibration_status: 'uncalibrated',
       },
     },
   };
 }
+
+test('reports preserve optional capability inputs as reported/review flags without detection claims', () => {
+  const html = buildReportHtml(savedRecord());
+  assert.match(html, /Capability inputs &amp; review flags/);
+  assert.match(html, /Reported energy value/);
+  assert.match(html, /Urea concern input/);
+  assert.match(html, /Qualified confirmation required/);
+  assert.match(html, /not confirmed detection results/);
+});
 
 function deepFreeze(value) {
   Object.values(value).forEach((child) => {

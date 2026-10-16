@@ -19,7 +19,7 @@ test('the real app boots in farmer mode with blank guided readings, help and no 
   assert.match(html, /Welcome to Nutri-Scan/);
   assert.match(html, /Screening progress/);
   assert.match(html, /id="farmer-help"/);
-  assert.equal((html.match(/type="number"/g) || []).length, 10);
+  assert.equal((html.match(/type="number"/g) || []).length, 18, 'ten required readings plus eight optional reported capability inputs');
   assert.doesNotMatch(html, /value="(?:62|4\.2|68|8\.8)"/);
   assert.doesNotMatch(html, /Preview summary|SIL-2026-0142|Good morning, Atif/);
 });

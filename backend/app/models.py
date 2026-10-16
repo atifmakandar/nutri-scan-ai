@@ -30,10 +30,29 @@ class VisionData(RequestModel):
     surface_damage: float = Field(ge=0, le=1)
 
 
+class SupplementalData(RequestModel):
+    """Optional reported values and concern indicators.
+
+    These fields extend the demo contract without pretending that a browser,
+    photograph, or default ESP32 sketch measured the analyte. Concern scores are
+    operator- or report-supplied signals that require qualified confirmation.
+    """
+
+    energy_mj_per_kg: float | None = Field(default=None, ge=0, le=30)
+    calcium_pct: float | None = Field(default=None, ge=0, le=20)
+    phosphorus_pct: float | None = Field(default=None, ge=0, le=10)
+    mineral_concern_score: float | None = Field(default=None, ge=0, le=1)
+    urea_concern_score: float | None = Field(default=None, ge=0, le=1)
+    sand_silica_concern_score: float | None = Field(default=None, ge=0, le=1)
+    aflatoxin_concern_score: float | None = Field(default=None, ge=0, le=1)
+    fungal_concern_score: float | None = Field(default=None, ge=0, le=1)
+
+
 class InputBundle(RequestModel):
     sensor: SensorData
     nir: NIRData
     vision: VisionData
+    supplemental: SupplementalData | None = None
 
 
 class AnalyzeRequest(RequestModel):
@@ -43,6 +62,7 @@ class AnalyzeRequest(RequestModel):
     sensor: SensorData
     nir: NIRData
     vision: VisionData
+    supplemental: SupplementalData | None = None
     farm_id: str | None = Field(default=None, min_length=2, max_length=80)
 
 
@@ -169,6 +189,15 @@ class AssessmentMetadata(BaseModel):
     calibration_status: str = "uncalibrated"
 
 
+class CapabilitySignal(BaseModel):
+    code: Literal[
+        "energy_reported", "minerals_reported", "mineral_concern",
+        "urea_concern", "sand_silica_concern", "aflatoxin_concern", "fungal_concern",
+    ]
+    status: Literal["reported", "review_required"]
+    source: Literal["operator_or_lab_input"] = "operator_or_lab_input"
+
+
 class AnalysisResult(BaseModel):
     id: str
     created_at: datetime
@@ -179,6 +208,7 @@ class AnalysisResult(BaseModel):
     parameters: dict[str, float | str]
     anomalies: list[str]
     advisory: list[str]
+    capability_signals: list[CapabilitySignal] = Field(default_factory=list)
     assessment: AssessmentMetadata = Field(default_factory=AssessmentMetadata)
 
 

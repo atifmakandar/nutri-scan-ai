@@ -30,6 +30,25 @@ export const SCREENING_GROUPS = [
   },
 ];
 
+// Optional reported values and concern indicators. These are never required to
+// submit the ten-reading baseline and are not treated as validated detection.
+export const SCREENING_OPTIONAL_GROUPS = [
+  {
+    key: 'supplemental', title: 'Reported nutrition & safety concerns',
+    description: 'Optional operator or laboratory inputs. These values require qualified confirmation and do not prove presence or absence.',
+    fields: [
+      { key: 'energy_mj_per_kg', label: 'Energy value', unit: 'MJ/kg', min: 0, max: 30 },
+      { key: 'calcium_pct', label: 'Calcium', unit: '%', min: 0, max: 20 },
+      { key: 'phosphorus_pct', label: 'Phosphorus', unit: '%', min: 0, max: 10 },
+      { key: 'mineral_concern_score', label: 'Mineral concern', unit: '0–1', min: 0, max: 1 },
+      { key: 'urea_concern_score', label: 'Urea concern', unit: '0–1', min: 0, max: 1 },
+      { key: 'sand_silica_concern_score', label: 'Sand/silica concern', unit: '0–1', min: 0, max: 1 },
+      { key: 'aflatoxin_concern_score', label: 'Aflatoxin concern', unit: '0–1', min: 0, max: 1 },
+      { key: 'fungal_concern_score', label: 'Fungal concern', unit: '0–1', min: 0, max: 1 },
+    ],
+  },
+];
+
 export const SCREENING_SOURCES = [
   { value: 'manual', label: 'Manual entry' },
   { value: 'mobile', label: 'Mobile capture' },
@@ -71,6 +90,11 @@ export function parseReading(raw, field, t = english) {
   return { value, error: '' };
 }
 
+function parseOptionalReading(raw, field, t = english) {
+  if (raw === undefined || raw === null || (typeof raw === 'string' && raw.trim() === '')) return { value: null, error: '' };
+  return parseReading(raw, field, t);
+}
+
 const validId = (value) => typeof value === 'string' && value.length >= 2 && value.length <= 80
   && value.trim() === value && !/[\u0000-\u001f\u007f]/.test(value);
 
@@ -87,6 +111,12 @@ export function validateScreening(form, t = english) {
       if (error) errors[field.key] = error;
     }
   }
+  for (const group of SCREENING_OPTIONAL_GROUPS) {
+    for (const field of group.fields) {
+      const { error } = parseOptionalReading(form?.inputs?.[group.key]?.[field.key], field, t);
+      if (error) errors[field.key] = error;
+    }
+  }
   return errors;
 }
 
@@ -99,12 +129,18 @@ export function parseScreening(form, t = english) {
   for (const group of SCREENING_GROUPS) {
     for (const field of group.fields) value.inputs[group.key][field.key] = numericValue(form.inputs[group.key][field.key]);
   }
+  const supplemental = {};
+  for (const field of SCREENING_OPTIONAL_GROUPS[0].fields) {
+    const parsed = parseOptionalReading(form.inputs?.supplemental?.[field.key], field, t);
+    if (parsed.value !== null) supplemental[field.key] = parsed.value;
+  }
+  if (Object.keys(supplemental).length) value.inputs.supplemental = supplemental;
   return { value, errors };
 }
 
 /** Edits preserve the complete parent's form, including any extra parent-owned metadata. */
 export function updateScreeningReading(form, fieldKey, raw) {
-  const group = SCREENING_GROUPS.find((candidate) => candidate.fields.some((field) => field.key === fieldKey));
+  const group = [...SCREENING_GROUPS, ...SCREENING_OPTIONAL_GROUPS].find((candidate) => candidate.fields.some((field) => field.key === fieldKey));
   if (!group) throw new Error(`Unknown screening field: ${fieldKey}`);
   const number = numericValue(raw);
   const value = typeof raw === 'string' && raw.trim() === '' ? '' : Number.isFinite(number) ? number : raw;

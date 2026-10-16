@@ -29,6 +29,11 @@ const INPUT_RANGES = {
   nir: { protein_pct: [0, 100], dry_matter_pct: [0, 100], fiber_pct: [0, 100] },
   vision: { mold_score: [0, 1], color_anomaly: [0, 1], surface_damage: [0, 1] },
 };
+const OPTIONAL_INPUT_RANGES = {
+  energy_mj_per_kg: [0, 30], calcium_pct: [0, 20], phosphorus_pct: [0, 10],
+  mineral_concern_score: [0, 1], urea_concern_score: [0, 1],
+  sand_silica_concern_score: [0, 1], aflatoxin_concern_score: [0, 1], fungal_concern_score: [0, 1],
+};
 const FAILURE_MESSAGES = Object.freeze({
   interrupted: 'The last attempt was interrupted. Retry uses the same request ID.',
   network: 'The scan could not be confirmed. Retry uses the same request ID.',
@@ -96,6 +101,16 @@ function snapshotForm(form, farmId) {
       inputs[group][field] = value;
     }
   }
+  const supplemental = {};
+  for (const [field, [min, max]] of Object.entries(OPTIONAL_INPUT_RANGES)) {
+    const value = form.inputs?.supplemental?.[field];
+    if (value === undefined || value === null || value === '') continue;
+    if (typeof value !== 'number' || !Number.isFinite(value) || value < min || value > max) {
+      fail('validation', 'Optional reported inputs must be finite numbers within the form limits.');
+    }
+    supplemental[field] = value;
+  }
+  if (Object.keys(supplemental).length) inputs.supplemental = supplemental;
   return { farm_id: farmId, batch_id: form.batch_id, sample_type: form.sample_type, source_mode: form.source_mode, inputs };
 }
 
@@ -125,8 +140,14 @@ function exactKeys(value, keys) {
 
 function validateForm(form, farmId, queuedId) {
   exactKeys(form, queuedId ? [...FORM_KEYS, 'client_request_id'] : FORM_KEYS);
-  exactKeys(form.inputs, Object.keys(INPUT_RANGES));
+  const allowedGroups = [...Object.keys(INPUT_RANGES), ...(form.inputs.supplemental ? ['supplemental'] : [])];
+  exactKeys(form.inputs, allowedGroups);
   for (const [group, fields] of Object.entries(INPUT_RANGES)) exactKeys(form.inputs[group], Object.keys(fields));
+  if (form.inputs.supplemental) {
+    if (!isObject(form.inputs.supplemental) || Object.keys(form.inputs.supplemental).some((field) => !Object.hasOwn(OPTIONAL_INPUT_RANGES, field))) {
+      throw new Error('Unexpected stored fields');
+    }
+  }
   snapshotForm(form, farmId);
   if (queuedId && form.client_request_id !== queuedId) throw new Error('Mismatched request ID');
 }

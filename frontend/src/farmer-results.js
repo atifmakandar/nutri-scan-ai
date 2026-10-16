@@ -56,6 +56,15 @@ export const RESULT_METRICS = [
   { key: 'fiber_pct', label: 'Crude fiber', unit: '%', differenceUnit: 'percentage points' },
   { key: 'ph', label: 'pH', unit: '', differenceUnit: 'pH units' },
   { key: 'temperature_c', label: 'Temperature', unit: '°C', differenceUnit: '°C' },
+  { key: 'humidity_pct', label: 'Humidity', unit: '%', differenceUnit: 'percentage points' },
+  { key: 'energy_mj_per_kg', label: 'Reported energy value', unit: 'MJ/kg', differenceUnit: 'MJ/kg' },
+  { key: 'calcium_pct', label: 'Reported calcium', unit: '%', differenceUnit: 'percentage points' },
+  { key: 'phosphorus_pct', label: 'Reported phosphorus', unit: '%', differenceUnit: 'percentage points' },
+  { key: 'mineral_concern_score', label: 'Mineral concern input', unit: '0–1', differenceUnit: 'points' },
+  { key: 'urea_concern_score', label: 'Urea concern input', unit: '0–1', differenceUnit: 'points' },
+  { key: 'sand_silica_concern_score', label: 'Sand/silica concern input', unit: '0–1', differenceUnit: 'points' },
+  { key: 'aflatoxin_concern_score', label: 'Aflatoxin concern input', unit: '0–1', differenceUnit: 'points' },
+  { key: 'fungal_concern_score', label: 'Fungal concern input', unit: '0–1', differenceUnit: 'points' },
   { key: 'nutritional_score', label: 'Nutritional score', unit: '/ 100', differenceUnit: 'points' },
 ];
 
