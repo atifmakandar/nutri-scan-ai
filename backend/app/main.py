@@ -205,7 +205,7 @@ def create_app(db_path: str | os.PathLike[str] | None = None) -> FastAPI:
                 farm_id=user["farm_id"], batch_id=f"LEGACY-{uuid4().hex[:8].upper()}",
                 sample_type=req.sample_type, source_mode="esp32",
                 inputs=InputBundle(sensor=req.sensor, nir=req.nir, vision=req.vision, supplemental=req.supplemental),
-            ), result,
+            ), result, actor_id=user["id"],
         )
         return result
 
@@ -225,7 +225,7 @@ def create_app(db_path: str | os.PathLike[str] | None = None) -> FastAPI:
             supplemental=request.inputs.supplemental,
         ))
         try:
-            return repository.save_scan(request, result)
+            return repository.save_scan(request, result, actor_id=user["id"])
         except ConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 

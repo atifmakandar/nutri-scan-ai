@@ -57,7 +57,7 @@ try {
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  const store = Object.fromEntries(['batches', 'observations', 'reminders', 'testing-requests'].map((name) => [name, []]));
+  const store = Object.fromEntries(['batches', 'observations', 'reminders', 'testing-requests', 'lab-confirmations', 'devices', 'review-alerts', 'audit-events'].map((name) => [name, []]));
   const files = new Map(); const writes = [];
   let failing = ''; let unauthorized = false; let sequence = 0;
   const timestamp = '2026-10-15T10:00:00Z';
@@ -249,7 +249,7 @@ try {
   await page.evaluate(() => { window.fieldworkTest.setLocale('en'); window.fieldworkTest.setRole('owner'); });
   await page.getByRole('tab', { name: 'Batches', exact: true }).waitFor();
   await panel().getByRole('heading', { name: 'Renamed feed', exact: true }).waitFor();
-  await page.waitForFunction(() => [...document.querySelectorAll('.fw-list')].length === 4
+  await page.waitForFunction(() => [...document.querySelectorAll('.fw-list')].length === 7
     && [...document.querySelectorAll('.fw-list')].every((node) => node.getAttribute('aria-busy') === 'false'));
   unauthorized = true;
   await panel().getByRole('button', { name: 'Refresh list', exact: true }).click();

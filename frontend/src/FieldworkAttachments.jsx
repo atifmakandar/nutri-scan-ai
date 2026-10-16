@@ -18,7 +18,7 @@ function usePreview(blob) {
   return preview && preview.blob === blob ? preview.url : '';
 }
 
-export default function FieldworkAttachments({ api, collection, recordId, reports = false, canWrite, online, onCount, t }) {
+export default function FieldworkAttachments({ api, collection, recordId, reports = false, canWrite, online, onCount, onItems, t }) {
   const path = fieldworkPath(collection, recordId, reports ? 'reports' : 'photos');
   const [items, setItems] = useState(null);
   const [loading, setLoading] = useState(Boolean(online));
@@ -30,6 +30,8 @@ export default function FieldworkAttachments({ api, collection, recordId, report
   const input = useRef(null);
   const countCallback = useRef(onCount);
   countCallback.current = onCount;
+  const itemsCallback = useRef(onItems);
+  itemsCallback.current = onItems;
   const action = useFieldworkAction();
   const localPreview = usePreview(file);
   const savedPreview = usePreview(view?.blob);
@@ -42,7 +44,7 @@ export default function FieldworkAttachments({ api, collection, recordId, report
     setLoading(true); setError('');
     Promise.resolve().then(() => api(path, { signal: controller.signal })).then((value) => {
       const metadata = fieldworkAttachments(value);
-      if (active) { setItems(metadata); countCallback.current?.(metadata.length); }
+      if (active) { setItems(metadata); countCallback.current?.(metadata.length); itemsCallback.current?.(metadata); }
     }).catch((failure) => {
       if (active && failure?.name !== 'AbortError') setError(fieldworkError(failure));
     }).finally(() => { if (active) setLoading(false); });
@@ -72,6 +74,7 @@ export default function FieldworkAttachments({ api, collection, recordId, report
     if (metadata) {
       const next = [...items.filter((item) => item.id !== metadata.id), metadata];
       setItems(next); countCallback.current?.(next.length);
+      itemsCallback.current?.(next);
       setFile(null); if (input.current) input.current.value = '';
       setMessage('Attachment saved on the farm.');
     }

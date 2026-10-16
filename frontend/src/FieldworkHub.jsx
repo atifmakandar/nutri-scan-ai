@@ -1,5 +1,6 @@
 import React, { useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FieldworkBatches, FieldworkObservations, FieldworkReminders, FieldworkTesting } from './FieldworkWorkflows.jsx';
+import ReviewPanel from './ReviewPanel.jsx';
 import { createFieldworkClient } from './fieldwork.js';
 import { fieldworkText } from './fieldwork-messages.js';
 import './fieldwork.css';
@@ -7,6 +8,7 @@ import './fieldwork.css';
 const tabs = [
   ['batches', 'Batches', FieldworkBatches], ['observations', 'Quick observations', FieldworkObservations],
   ['reminders', 'Reminders', FieldworkReminders], ['testing', 'Testing help', FieldworkTesting],
+  ['review', 'Review and devices', ReviewPanel],
 ];
 
 /** Mount keyed by user/farm; the internal key also protects accidental scope changes. */
@@ -22,7 +24,7 @@ export default function FieldworkHub({ api, session, online = true, onUseBatch, 
 function FieldworkScope({ api, session, online, onUseBatch, t, refreshKey }) {
   const [expired, setExpired] = useState(false);
   const [selected, setSelected] = useState(0);
-  const [visits, setVisits] = useState([0, 0, 0, 0]);
+  const [visits, setVisits] = useState(() => tabs.map(() => 0));
   const refs = useRef([]);
   const id = useId();
   const client = useMemo(() => createFieldworkClient(api, () => setExpired(true)), [api]);

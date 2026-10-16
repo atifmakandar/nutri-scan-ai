@@ -140,9 +140,13 @@ install prompt is offered.
 ## Added files
 
 - Backend: `backend/app/fieldwork.py`, `fieldwork_models.py`, `fieldwork_storage.py`,
-  plus `backend/tests/test_fieldwork.py`; additive tables are initialized lazily.
+  plus `backend/app/storage.py` and `backend/tests/test_local_extension.py` for
+  report transcription, device registry/health, prototype review alerts, and
+  redacted application audit events. Additive tables are initialized safely.
 - Hub: `frontend/src/FieldworkHub.jsx`, `FieldworkWorkflows.jsx`, `FieldworkForms.jsx`,
-  `FieldworkAttachments.jsx`, controls/hooks/print/validation/messages/CSS.
+  `FieldworkAttachments.jsx`, `ReviewPanel.jsx`, controls/hooks/print/validation/
+  messages/CSS. Laboratory values remain text copied from a saved report; they are
+  not OCR, verified lab results, or safety decisions.
 - Capture: `ReadingAssist.jsx`, `VoiceReading.jsx`, `InstrumentCapture.jsx`,
   `reading-assist*.js`, messages/CSS, and `InstrumentProvenance.jsx`.
 - PWA: `pwa-plugin.js`, `public/manifest.webmanifest`, `public/offline.*`, local icon,

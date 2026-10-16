@@ -21,6 +21,23 @@ measurement or safety certification.
 | Multilingual UI | English, Hindi, and Marathi interface/help copy | Draft translations; qualified safety-language review is still required. |
 | Traceability | Farm-scoped accounts, batch IDs, timestamps, reports, evidence, QR route state | Server-backed local MVP using SQLite; not production cloud durability or laboratory chain-of-custody. |
 
+## Local validation and operations extension
+
+The current local prototype also includes a review loop around the screening
+workflow:
+
+| Extension | Available now | Boundary |
+| --- | --- | --- |
+| Laboratory confirmation | Manually transcribe text values such as `<0.1`, `trace`, or `not detected` from an uploaded report | The app does not read, validate, accredit, or interpret the laboratory report. |
+| Measurement provenance | Reviewed instrument captures retain device, time, selected readings, and device-reported calibration state | A reported capture is not proof of sensor accuracy or calibration. |
+| Device registry | Farm-scoped device records and operator/reviewed-capture health entries | No live heartbeat, MQTT ingestion, firmware verification, or automatic offline claim. |
+| Review alerts | Persisted, deduplicated prototype threshold prompts with acknowledgement state | Alerts are review prompts, not safety limits or confirmed detection results. |
+| Audit history | Append-only local application mutation events with redacted metadata | This is not a tamper-proof infrastructure audit or complete laboratory chain of custody. |
+
+These records are implemented as a local SQLite extension so the user flow can
+be demonstrated and tested before selecting PostgreSQL, object storage, device
+transport, notification providers, or laboratory integrations.
+
 ## Explicitly not claimed
 
 The prototype does not detect or certify urea adulteration, mineral deficiency,

@@ -21,9 +21,11 @@ from starlette.concurrency import run_in_threadpool
 from starlette.responses import JSONResponse
 
 from .fieldwork_models import (
-    BatchRequest, BatchResponse, ObservationRequest, ObservationResponse, Page,
-    ReminderRequest, ReminderResponse, ReminderStatusRequest, TestingRequest,
-    TestingResponse, TestingStatusRequest,
+    AlertStatus, AuditEventResponse, BatchRequest, BatchResponse, DeviceHealthRequest,
+    DeviceHealthResponse, DeviceRequest, DeviceResponse, LabConfirmationRequest,
+    LabConfirmationResponse, ObservationRequest, ObservationResponse, Page,
+    ReminderRequest, ReminderResponse, ReminderStatusRequest, ReviewAlertResponse,
+    ReviewAlertStatusRequest, TestingRequest, TestingResponse, TestingStatusRequest,
 )
 from .fieldwork_storage import FieldworkError, FieldworkRepository
 from .models import PhotoResponse, SampleType
@@ -171,7 +173,7 @@ def install_fieldwork_routes(app, repository_supplier, current_user, writer, nor
 
     @router.post("/testing-requests", response_model=TestingResponse, status_code=201)
     def create_testing_request(req: TestingRequest, user: dict = Depends(writer), store: FieldworkRepository = Depends(repository)):
-        return store.create("testing-requests", user["farm_id"], req)
+        return store.create("testing-requests", user["farm_id"], req, actor_id=user["id"])
 
     @router.get("/testing-requests/{resource_id}", response_model=TestingResponse)
     def testing_request(resource_id: str, user: dict = Depends(current_user), store: FieldworkRepository = Depends(repository)):
@@ -179,7 +181,83 @@ def install_fieldwork_routes(app, repository_supplier, current_user, writer, nor
 
     @router.post("/testing-requests/{resource_id}/status", response_model=TestingResponse)
     def testing_status(resource_id: str, req: TestingStatusRequest, user: dict = Depends(writer), store: FieldworkRepository = Depends(repository)):
-        return store.testing_status(resource_id, user["farm_id"], req)
+        return store.testing_status(resource_id, user["farm_id"], req, actor_id=user["id"])
+
+    @router.get("/lab-confirmations", response_model=Page[LabConfirmationResponse])
+    def lab_confirmations(
+        testing_request_id: str | None = Query(default=None, min_length=2, max_length=80),
+        limit: int = Query(default=20, ge=1, le=100), offset: int = Query(default=0, ge=0),
+        user: dict = Depends(current_user), store: FieldworkRepository = Depends(repository),
+    ):
+        return store.list_lab_confirmations(user["farm_id"], limit, offset, testing_request_id=testing_request_id)
+
+    @router.post("/lab-confirmations", response_model=LabConfirmationResponse, status_code=201)
+    def create_lab_confirmation(req: LabConfirmationRequest, user: dict = Depends(writer), store: FieldworkRepository = Depends(repository)):
+        return store.create_lab_confirmation(user["farm_id"], req, actor_id=user["id"])
+
+    @router.get("/lab-confirmations/{resource_id}", response_model=LabConfirmationResponse)
+    def lab_confirmation(resource_id: str, user: dict = Depends(current_user), store: FieldworkRepository = Depends(repository)):
+        return store.get_lab_confirmation(resource_id, user["farm_id"])
+
+    @router.get("/devices", response_model=Page[DeviceResponse])
+    def devices(
+        limit: int = Query(default=20, ge=1, le=100), offset: int = Query(default=0, ge=0),
+        user: dict = Depends(current_user), store: FieldworkRepository = Depends(repository),
+    ):
+        return store.list_devices(user["farm_id"], limit, offset)
+
+    @router.post("/devices", response_model=DeviceResponse, status_code=201)
+    def create_device(req: DeviceRequest, user: dict = Depends(writer), store: FieldworkRepository = Depends(repository)):
+        return store.create_device(user["farm_id"], req, actor_id=user["id"])
+
+    @router.get("/devices/{resource_id}", response_model=DeviceResponse)
+    def device(resource_id: str, user: dict = Depends(current_user), store: FieldworkRepository = Depends(repository)):
+        return store.get_device(resource_id, user["farm_id"])
+
+    @router.post("/devices/{resource_id}", response_model=DeviceResponse)
+    def update_device(resource_id: str, req: DeviceRequest, user: dict = Depends(writer), store: FieldworkRepository = Depends(repository)):
+        return store.update_device(resource_id, user["farm_id"], req, actor_id=user["id"])
+
+    @router.get("/devices/{resource_id}/health", response_model=Page[DeviceHealthResponse])
+    def device_health(
+        resource_id: str, limit: int = Query(default=20, ge=1, le=100), offset: int = Query(default=0, ge=0),
+        user: dict = Depends(current_user), store: FieldworkRepository = Depends(repository),
+    ):
+        return store.list_device_health(resource_id, user["farm_id"], limit, offset)
+
+    @router.post("/devices/{resource_id}/health", response_model=DeviceHealthResponse, status_code=201)
+    def create_device_health(
+        resource_id: str, req: DeviceHealthRequest, user: dict = Depends(writer), store: FieldworkRepository = Depends(repository),
+    ):
+        return store.add_device_health(resource_id, user["farm_id"], req, actor_id=user["id"])
+
+    @router.get("/review-alerts", response_model=Page[ReviewAlertResponse])
+    def review_alerts(
+        status: AlertStatus | None = None, scan_id: str | None = Query(default=None, min_length=2, max_length=80),
+        batch_id: str | None = Query(default=None, min_length=2, max_length=80),
+        limit: int = Query(default=20, ge=1, le=100), offset: int = Query(default=0, ge=0),
+        user: dict = Depends(current_user), store: FieldworkRepository = Depends(repository),
+    ):
+        return store.list_review_alerts(user["farm_id"], limit, offset, status=status, scan_id=scan_id, batch_id=batch_id)
+
+    @router.get("/review-alerts/{resource_id}", response_model=ReviewAlertResponse)
+    def review_alert(resource_id: str, user: dict = Depends(current_user), store: FieldworkRepository = Depends(repository)):
+        return store.get_review_alert(resource_id, user["farm_id"])
+
+    @router.post("/review-alerts/{resource_id}/status", response_model=ReviewAlertResponse)
+    def review_alert_status(resource_id: str, req: ReviewAlertStatusRequest, user: dict = Depends(writer), store: FieldworkRepository = Depends(repository)):
+        return store.review_alert_status(resource_id, user["farm_id"], req.status, actor_id=user["id"])
+
+    @router.post("/review-alerts/{resource_id}/acknowledge", response_model=ReviewAlertResponse)
+    def acknowledge_review_alert(resource_id: str, user: dict = Depends(writer), store: FieldworkRepository = Depends(repository)):
+        return store.review_alert_status(resource_id, user["farm_id"], "acknowledged", actor_id=user["id"])
+
+    @router.get("/audit-events", response_model=Page[AuditEventResponse])
+    def audit_events(
+        limit: int = Query(default=20, ge=1, le=100), offset: int = Query(default=0, ge=0),
+        user: dict = Depends(current_user), store: FieldworkRepository = Depends(repository),
+    ):
+        return store.list_audit_events(user["farm_id"], limit, offset)
 
     app.include_router(router)
 
@@ -210,7 +288,10 @@ def install_fieldwork_routes(app, repository_supplier, current_user, writer, nor
                 if len(payload) > maximum:
                     raise HTTPException(413, "Normalized image exceeds 5 MiB")
             filename = safe_filename(request.headers.get("x-filename"), suffix, "report" if reports else "photo")
-            return await run_in_threadpool(store.add_attachment, collection, resource_id, user["farm_id"], filename, content_type, payload)
+            return await run_in_threadpool(
+                store.add_attachment, collection, resource_id, user["farm_id"], filename, content_type, payload,
+                actor_id=user["id"],
+            )
 
         @attachments.get("/{attachment_id}")
         def download_attachment(resource_id: str, attachment_id: str, user: dict = Depends(current_user), store: FieldworkRepository = Depends(repository)):

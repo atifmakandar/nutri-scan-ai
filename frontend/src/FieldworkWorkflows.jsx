@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FieldworkAttachmentToggle } from './FieldworkAttachments.jsx';
 import { FieldworkDetails, FieldworkFeedback, FieldworkField, FieldworkList } from './FieldworkControls.jsx';
-import { FieldworkBatchForm, FieldworkObservationForm, FieldworkReminderForm, FieldworkTestingForm } from './FieldworkForms.jsx';
+import {
+  FieldworkBatchForm, FieldworkLabConfirmationForm, FieldworkObservationForm, FieldworkReminderForm,
+  FieldworkTestingForm,
+} from './FieldworkForms.jsx';
 import { useFieldworkAction, useFieldworkDay, useFieldworkPage } from './fieldwork-hooks.js';
 import { fieldworkText } from './fieldwork-messages.js';
 import { printFieldworkRequest } from './fieldwork-print.js';
@@ -166,8 +169,10 @@ export function FieldworkCollectionChecklist({ t }) {
 export function FieldworkTestingCard({ request, api, farmId, online, canWrite, onChanged, t }) {
   const [date, setDate] = useState(fieldworkLocalDay);
   const [reportCount, setReportCount] = useState(request.report_count);
+  const [reports, setReports] = useState(null);
   const [printError, setPrintError] = useState('');
   const action = useFieldworkAction();
+  const confirmations = useFieldworkPage(api, 'lab-confirmations', farmId, online && request.status === 'report_received', { testing_request_id: request.id });
   const tr = (key) => fieldworkText(t, key);
   useEffect(() => { setReportCount(request.report_count); }, [request.report_count]);
   async function advance(event) {
@@ -191,7 +196,7 @@ export function FieldworkTestingCard({ request, api, farmId, online, canWrite, o
       try { printFieldworkRequest(request, t); } catch (error) { setPrintError(error.message); }
     }}>{tr('Print saved request')}</button>
     <FieldworkFeedback error={printError} t={t} />
-    <FieldworkAttachmentToggle api={api} collection="testing-requests" recordId={request.id} reports count={reportCount} onCount={setReportCount} online={online} canWrite={canWrite} t={t} />
+    <FieldworkAttachmentToggle api={api} collection="testing-requests" recordId={request.id} reports count={reportCount} onCount={setReportCount} onItems={setReports} online={online} canWrite={canWrite} t={t} />
     {request.status !== 'report_received' && <form className="fw-status-form" onSubmit={advance}>
       <fieldset disabled={!online || !canWrite || action.busy}><legend>{tr('Update saved request')}</legend>
         <FieldworkField label={request.status === 'requested' ? 'Collected on' : 'Report received on'} name="transition_date" type="date" value={date} onChange={(_, value) => setDate(value)} required min={request.collected_on || request.requested_on || undefined} max="9999-12-31" t={t} />
@@ -200,6 +205,21 @@ export function FieldworkTestingCard({ request, api, farmId, online, canWrite, o
       </fieldset>
     </form>}
     <FieldworkFeedback error={action.error} t={t} />
+    {request.status === 'report_received' && <section className="fw-snapshot fw-lab-confirmations">
+      <h4>{tr('Laboratory confirmations')}</h4>
+      <p className="fw-hint">{tr('These values are transcribed from a saved report. They are not independently verified by Nutri-Scan.')}</p>
+      {confirmations.loading && <p role="status">{tr('Loading laboratory confirmations…')}</p>}
+      {confirmations.error && <p className="fw-error" role="alert">{tr(confirmations.error)}</p>}
+      {confirmations.data?.items?.length ? <div className="fw-cards">{confirmations.data.items.map((confirmation) => <article className="fw-card" key={confirmation.id}>
+        <h5>{confirmation.analyte}</h5>
+        <FieldworkDetails t={t} values={[
+          ['Reported value', confirmation.reported_value], ['Unit', confirmation.unit], ['Notes', confirmation.notes],
+          ['Recorded at', confirmation.created_at],
+        ]} />
+      </article>)}</div> : confirmations.data && <p>{tr('No laboratory confirmations recorded yet.')}</p>}
+      {reports?.length ? <FieldworkLabConfirmationForm api={api} farmId={farmId} online={online} canWrite={canWrite} request={request} reports={reports} t={t} onSaved={() => confirmations.refresh()} />
+        : <p className="fw-hint">{tr('Open Private reports above to choose the report attachment before recording a confirmation.')}</p>}
+    </section>}
   </article>;
 }
 

@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
+from .fieldwork_storage import SCHEMA as FIELDWORK_SCHEMA, record_audit_event
 from .models import AnalysisResult, PhotoResponse, ScanCreateRequest, ScanResponse, ScanSummary
 
 
@@ -119,8 +120,12 @@ class SQLiteRepository:
             connection.execute(
                 "CREATE UNIQUE INDEX IF NOT EXISTS idx_scans_request ON scans(farm_id, client_request_id)"
             )
+            # Additive local extension tables are initialized alongside the
+            # existing repository so scan writes can persist derived records
+            # before any fieldwork route has been called.
+            connection.executescript(FIELDWORK_SCHEMA)
 
-    def save_scan(self, request: ScanCreateRequest, result: AnalysisResult) -> ScanResponse:
+    def save_scan(self, request: ScanCreateRequest, result: AnalysisResult, *, actor_id: str | None = None) -> ScanResponse:
         # The standalone repository retains its old local-use contract. HTTP
         # callers always supply the authenticated farm before reaching here.
         farm_id = request.farm_id or "demo-farm"
@@ -192,7 +197,96 @@ class SQLiteRepository:
                     request.instrument_capture.model_dump_json(exclude_none=True) if request.instrument_capture is not None else None,
                 ),
             )
+            self._persist_scan_extension_records(connection, request, result, actor_id)
         return ScanResponse(scan=scan, result=result)
+
+    @staticmethod
+    def _persist_scan_extension_records(connection, request: ScanCreateRequest, result: AnalysisResult, actor_id: str | None) -> None:
+        """Persist only reviewed provenance and threshold-derived records.
+
+        This deliberately uses already validated request fields. It does not
+        alter the analysis result or retain a second copy of the request body.
+        """
+        farm_id = request.farm_id or "demo-farm"
+        if request.instrument_capture is not None:
+            capture = request.instrument_capture
+            device = connection.execute(
+                "SELECT id FROM fieldwork_devices WHERE farm_id = ? AND device_id = ?",
+                (farm_id, capture.device_id),
+            ).fetchone()
+            now = datetime.now(timezone.utc).isoformat()
+            if device is None:
+                device_id = str(uuid4())
+                connection.execute(
+                    """INSERT INTO fieldwork_devices
+                       (id, farm_id, device_id, label, device_type, notes, created_at, updated_at)
+                       VALUES (?, ?, ?, '', '', '', ?, ?)""",
+                    (device_id, farm_id, capture.device_id, now, now),
+                )
+                record_audit_event(
+                    connection, farm_id=farm_id, actor_id=actor_id,
+                    action="device.registered", resource_type="device", resource_id=device_id,
+                    details={"source": "reviewed_capture"},
+                )
+            else:
+                device_id = device["id"]
+            health_id = str(uuid4())
+            inserted_health = connection.execute(
+                """INSERT OR IGNORE INTO fieldwork_device_health
+                   (id, farm_id, device_registry_id, status, source, scan_id, notes, reviewed_at, created_at)
+                   VALUES (?, ?, ?, 'unknown', 'reviewed_capture', ?, '', ?, ?)""",
+                (health_id, farm_id, device_id, result.id, capture.captured_at.isoformat(), now),
+            )
+            if inserted_health.rowcount:
+                record_audit_event(
+                    connection, farm_id=farm_id, actor_id=actor_id,
+                    action="device.health_recorded", resource_type="device_health", resource_id=health_id,
+                    details={"device_id": device_id, "source": "reviewed_capture", "status": "unknown"},
+                )
+        extra = request.inputs.supplemental
+        alerts: list[tuple[str, str, float, str]] = []
+        sensor, vision = request.inputs.sensor, request.inputs.vision
+        if vision.mold_score > 0.35:
+            alerts.append(("mold_score", "Mould score requires review", vision.mold_score, "> 0.35"))
+        if vision.color_anomaly > 0.35:
+            alerts.append(("color_anomaly", "Colour anomaly requires review", vision.color_anomaly, "> 0.35"))
+        if sensor.temperature_c > 35:
+            alerts.append(("temperature_c", "Supplied temperature reading requires review", sensor.temperature_c, "> 35"))
+        if request.sample_type == "silage" and not (3.8 <= sensor.ph <= 4.8):
+            alerts.append(("silage_ph", "Silage pH is outside the prototype target range", sensor.ph, "3.8-4.8"))
+        if extra is not None:
+            for field, code in (
+                ("mineral_concern_score", "mineral_concern"),
+                ("urea_concern_score", "urea_concern"),
+                ("sand_silica_concern_score", "sand_silica_concern"),
+                ("aflatoxin_concern_score", "aflatoxin_concern"),
+                ("fungal_concern_score", "fungal_concern"),
+            ):
+                value = getattr(extra, field)
+                if value is not None and value >= 0.5:
+                    alerts.append((code, f"Supplied {field} requires review", value, ">= 0.5"))
+        for code, message, observed_value, threshold in alerts:
+            alert_id = str(uuid4())
+            connection.execute(
+                """INSERT OR IGNORE INTO fieldwork_review_alerts
+                   (id, farm_id, scan_id, batch_id, sample_type, code, message,
+                    observed_value, threshold, status, acknowledged_at, acknowledged_by, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', NULL, NULL, ?)""",
+                (
+                    alert_id, farm_id, result.id, request.batch_id, request.sample_type,
+                    code, message, observed_value, threshold, result.created_at.isoformat(),
+                ),
+            )
+        record_audit_event(
+            connection, farm_id=farm_id, actor_id=actor_id,
+            action="scan.created", resource_type="scan", resource_id=result.id,
+            details={
+                "batch_id": request.batch_id,
+                "sample_type": request.sample_type,
+                "source_mode": request.source_mode,
+                "has_instrument_capture": request.instrument_capture is not None,
+            },
+        )
 
     def get_scan(self, scan_id: str, *, farm_id: str | None = None) -> ScanResponse | None:
         with self._connect() as connection:

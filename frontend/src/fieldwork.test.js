@@ -4,6 +4,7 @@ import {
   createFieldworkClient, downloadFieldworkBlob, emptyFieldworkForm, FIELDWORK_CHECKS, fieldworkAttachments,
   fieldworkError, fieldworkFilename, fieldworkListPath, fieldworkLocalDay, fieldworkNextDayDelay, fieldworkPage,
   fieldworkPagination, fieldworkPath, fieldworkTestingTransition, groupFieldworkReminders,
+  emptyLabConfirmationForm, parseLabConfirmationForm,
   matchingFieldworkRecord, parseFieldworkForm, validFieldworkDate, validateFieldworkFile,
 } from './fieldwork.js';
 import { buildFieldworkRequestHtml, printFieldworkRequest } from './fieldwork-print.js';
@@ -42,6 +43,18 @@ test('contract routes encode exact identities and paginate with limit/offset; fi
   assert.equal(fieldworkListPath('batches', { batch_id: 'ignored' }), '/api/v1/batches?limit=20&offset=0');
   for (const options of [{ limit: 101 }, { limit: 0 }, { offset: -1 }, { offset: 1.2 }]) assert.throws(() => fieldworkListPath('batches', options));
   for (const args of [['batches', 'a', 'status'], ['batches', 'a', 'reports'], ['testing-requests', 'a', 'photos'], ['batches', 'a', null, 'file']]) assert.throws(() => fieldworkPath(...args));
+});
+
+test('local extension routes and lab confirmation form preserve report text and reject unsafe extras', () => {
+  assert.equal(fieldworkPath('devices', 'device-1', 'health'), '/api/v1/devices/device-1/health');
+  assert.equal(fieldworkPath('review-alerts', 'alert-1', 'acknowledge'), '/api/v1/review-alerts/alert-1/acknowledge');
+  assert.equal(fieldworkPath('lab-confirmations', 'confirmation-1'), '/api/v1/lab-confirmations/confirmation-1');
+  const query = new URL(`https://test.invalid${fieldworkListPath('lab-confirmations', { testing_request_id: 'request-1' })}`);
+  assert.equal(query.searchParams.get('testing_request_id'), 'request-1');
+  const draft = { ...emptyLabConfirmationForm(), report_attachment_id: 'report-1', analyte: 'aflatoxin', reported_value: '<0.1', unit: 'mg/kg' };
+  assert.deepEqual(parseLabConfirmationForm(draft), { value: draft, errors: {} });
+  assert.equal(parseLabConfirmationForm({ ...draft, reported_value: ' ' }).value, null);
+  assert.equal(parseLabConfirmationForm({ ...draft, farm_id: 'foreign' }).value.farm_id, undefined);
 });
 
 test('known API failures have localized actionable errors, including attachment conflicts rather than duplicate-batch guidance', () => {

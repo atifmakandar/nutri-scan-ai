@@ -14,7 +14,7 @@
 .fieldwork input, .fieldwork select, .fieldwork textarea { background: #fff; color: var(--fw-ink); width: 100%; }
 .fieldwork textarea { resize: vertical; }
 .fieldwork [aria-invalid="true"] { border: 2px solid #a12f25; }
-.fieldwork .fw-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 22px 0; }
+.fieldwork .fw-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 22px 0; }
 .fieldwork .fw-panel[hidden] { display: none; }
 .fieldwork .fw-panel-title { border-bottom: 2px solid var(--fw-line); padding-bottom: 12px; }
 .fieldwork .fw-form { background: var(--fw-soft); padding: 18px; border-radius: 12px; margin: 18px 0; }
@@ -55,6 +55,8 @@
 .fieldwork figure img { display: block; max-width: 100%; max-height: 340px; object-fit: contain; border-radius: 8px; }
 .fieldwork figcaption { overflow-wrap: anywhere; }
 .fieldwork .fw-status-form button { margin-top: 14px; }
+.fieldwork .fw-review-section { border-top: 1px solid var(--fw-line); margin-top: 24px; padding-top: 10px; }
+.fieldwork .fw-audit-details { overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; background: #f3f7f1; padding: 12px; border-radius: 8px; font-size: 15px; }
 @media (max-width: 640px) {
   .fieldwork .fw-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .fieldwork .fw-form-grid, .fieldwork .fw-details { grid-template-columns: minmax(0, 1fr); }

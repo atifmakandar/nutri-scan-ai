@@ -1,4 +1,7 @@
-export const FIELDWORK_COLLECTIONS = Object.freeze(['batches', 'observations', 'reminders', 'testing-requests']);
+export const FIELDWORK_COLLECTIONS = Object.freeze([
+  'batches', 'observations', 'reminders', 'testing-requests', 'lab-confirmations',
+  'devices', 'review-alerts', 'audit-events',
+]);
 export const FIELDWORK_ANSWERS = Object.freeze(['yes', 'no', 'unknown']);
 export const FIELDWORK_CHECKS = Object.freeze([
   ['mould', 'Visible mould'], ['unusual_heat', 'Unusual heat'],
@@ -13,10 +16,12 @@ export function fieldworkPath(collection, id, attachment, attachmentId) {
   let path = `/api/v1/${collection}`;
   if (id != null) path += `/${encodeURIComponent(String(id))}`;
   if (attachment != null) {
-    if (id == null || !['photos', 'reports', 'status'].includes(attachment)
+    if (id == null || !['photos', 'reports', 'status', 'health', 'acknowledge'].includes(attachment)
       || attachment === 'reports' && collection !== 'testing-requests'
       || attachment === 'status' && !['reminders', 'testing-requests'].includes(collection)
-      || attachment === 'photos' && !['batches', 'observations'].includes(collection)) throw new Error('Invalid fieldwork route.');
+      || attachment === 'photos' && !['batches', 'observations'].includes(collection)
+      || attachment === 'health' && collection !== 'devices'
+      || attachment === 'acknowledge' && collection !== 'review-alerts') throw new Error('Invalid fieldwork route.');
     path += `/${attachment}`;
   }
   if (attachmentId != null) {
@@ -26,14 +31,41 @@ export function fieldworkPath(collection, id, attachment, attachmentId) {
   return path;
 }
 
-export function fieldworkListPath(collection, { limit = 20, offset = 0, batch_id = '', sample_type = '' } = {}) {
+export function fieldworkListPath(collection, options = {}) {
+  const {
+    limit = 20, offset = 0, batch_id = '', sample_type = '', testing_request_id = '',
+    status = '', scan_id = '',
+  } = options;
   if (!Number.isInteger(limit) || limit < 1 || limit > 100 || !Number.isInteger(offset) || offset < 0) throw new Error('Invalid pagination.');
   const query = new URLSearchParams({ limit: String(limit), offset: String(offset) });
   if (collection === 'observations') {
     if (batch_id) query.set('batch_id', batch_id);
     if (sample_type) query.set('sample_type', sample_type);
   }
+  if (collection === 'lab-confirmations' && testing_request_id) query.set('testing_request_id', testing_request_id);
+  if (collection === 'review-alerts') {
+    if (status) query.set('status', status);
+    if (scan_id) query.set('scan_id', scan_id);
+    if (batch_id) query.set('batch_id', batch_id);
+  }
   return `${fieldworkPath(collection)}?${query}`;
+}
+
+export function emptyLabConfirmationForm() {
+  return { report_attachment_id: '', analyte: '', reported_value: '', unit: '', notes: '' };
+}
+
+export function parseLabConfirmationForm(draft) {
+  const errors = {};
+  const value = {};
+  const text = (key, max, required = false) => {
+    const input = draft?.[key] ?? '';
+    if (typeof input !== 'string' || input.length > max || required && !input.trim()) errors[key] = 'Enter text within the allowed length.';
+    value[key] = typeof input === 'string' ? input : '';
+  };
+  text('report_attachment_id', 80, true); text('analyte', 120, true); text('reported_value', 200, true);
+  text('unit', 40); text('notes', 4000);
+  return { value: Object.keys(errors).length ? null : value, errors };
 }
 
 export function fieldworkRecord(value, farmId) {

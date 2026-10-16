@@ -2,7 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FieldworkFeedback, FieldworkField, FieldworkIdentity } from './FieldworkControls.jsx';
 import { useFieldworkAction } from './fieldwork-hooks.js';
 import { fieldworkText } from './fieldwork-messages.js';
-import { emptyFieldworkForm, FIELDWORK_ANSWERS, FIELDWORK_CHECKS, FIELDWORK_UNITS, fieldworkPath, fieldworkRecord, parseFieldworkForm } from './fieldwork.js';
+import {
+  emptyFieldworkForm, emptyLabConfirmationForm, FIELDWORK_ANSWERS, FIELDWORK_CHECKS, FIELDWORK_UNITS,
+  fieldworkPath, fieldworkRecord, parseFieldworkForm, parseLabConfirmationForm,
+} from './fieldwork.js';
 
 function useForm({ api, collection, farmId, initial, onSaved, online, canWrite }) {
   const [draft, setDraft] = useState(() => initial ? { ...initial } : emptyFieldworkForm(collection));
@@ -103,4 +106,48 @@ export function FieldworkTestingForm(props) {
     {field('Contact details', 'contact_details', { maxLength: 500 })}
     {field('Notes', 'notes', { maxLength: 4000, multiline: true })}
   </FieldworkForm>;
+}
+
+export function FieldworkLabConfirmationForm({ api, farmId, online, canWrite, request, reports = [], onSaved, t }) {
+  const [draft, setDraft] = useState(() => emptyLabConfirmationForm());
+  const [errors, setErrors] = useState({});
+  const action = useFieldworkAction();
+  const summary = useRef(null);
+  const tr = (key, values) => fieldworkText(t, key, values);
+  useEffect(() => { if (Object.keys(errors).length) summary.current?.focus(); }, [errors]);
+  function update(name, value) {
+    setDraft((current) => ({ ...current, [name]: value }));
+    setErrors((current) => ({ ...current, [name]: '' })); action.setError('');
+  }
+  async function submit(event) {
+    event.preventDefault();
+    if (!canWrite || !online || action.busy) return;
+    const parsed = parseLabConfirmationForm(draft);
+    setErrors(parsed.errors);
+    if (!parsed.value) return;
+    const saved = await action.run(async (signal) => fieldworkRecord(await api('/api/v1/lab-confirmations', {
+      method: 'POST', body: { ...parsed.value, testing_request_id: request.id }, signal,
+    }), farmId));
+    if (saved) { setDraft(emptyLabConfirmationForm()); onSaved(saved); }
+  }
+  const invalid = Object.values(errors).some(Boolean);
+  return <form className="fw-form" onSubmit={submit} noValidate aria-label={tr('Record laboratory confirmation')} aria-busy={action.busy}>
+    <fieldset disabled={!canWrite || !online || action.busy}>
+      <legend>{tr('Record laboratory confirmation')}</legend>
+      <p className="fw-wide fw-hint">{tr('Transcribe a saved report exactly. The application does not verify the laboratory or interpret the result.')}</p>
+      <div className="fw-form-grid">
+        <FieldworkField label="Report attachment" name="report_attachment_id" value={draft.report_attachment_id} onChange={update} error={errors.report_attachment_id} required t={t}>
+          <option value="">{tr('Choose a saved report')}</option>
+          {reports.map((report) => <option value={report.id} key={report.id}>{report.filename}</option>)}
+        </FieldworkField>
+        <FieldworkField label="Analyte" name="analyte" value={draft.analyte} onChange={update} error={errors.analyte} required maxLength={120} t={t} />
+        <FieldworkField label="Reported value" name="reported_value" value={draft.reported_value} onChange={update} error={errors.reported_value} required maxLength={200} t={t} />
+        <FieldworkField label="Unit" name="unit" value={draft.unit} onChange={update} error={errors.unit} maxLength={40} t={t} />
+        <FieldworkField label="Notes" name="notes" value={draft.notes} onChange={update} error={errors.notes} maxLength={4000} multiline t={t} />
+      </div>
+      <button className="fw-primary" type="submit">{tr(action.busy ? 'Saving…' : 'Save laboratory confirmation')}</button>
+    </fieldset>
+    {invalid && <p className="fw-error" role="alert" tabIndex={-1} ref={summary}>{tr('Check the marked fields. Nothing has been saved.')}</p>}
+    <FieldworkFeedback error={action.error} t={t} />
+  </form>;
 }

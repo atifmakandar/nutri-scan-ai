@@ -4,12 +4,12 @@
 
 | Check | Result |
 | --- | --- |
-| Backend regression + fieldwork suite: `.venv/bin/python -m unittest discover -s tests -p "test_*.py"` | **48 passed** |
-| Frontend tests: `npm test` | **309 passed**, no failures/skips |
+| Backend regression + fieldwork suite: `.venv/bin/python -m unittest discover -s tests -p "test_*.py"` | **55 passed** |
+| Frontend tests: `npm test` | **313 passed**, no failures/skips |
 | Production build: `npm run build` | Passed; PWA assets/service worker generated and React vendor chunk split |
 | Whitespace: `git diff --check` | Passed |
-| Existing farmer-flow browser smoke | Passed against an isolated temporary database |
-| Fieldwork live browser smoke: `node tests/fieldwork-live.browser.mjs` | Passed at 390px against isolated FastAPI/SQLite; batch/photo/observation/reminder/testing/report/viewer/readback paths verified |
+| Existing farmer-flow browser smoke | Previous baseline passed; not rerun after the local extension |
+| Fieldwork live browser smoke: `node tests/fieldwork-live.browser.mjs` | Previous baseline passed; not rerun after the local extension |
 | PWA mock browser smoke: `node tests/pwa.browser.mjs` | Passed; install lifecycle, cache boundaries, offline help and update activation verified |
 | PWA live preview: `node tests/pwa-live.browser.mjs` | Passed; actual App bootstrap, service worker, installability, public cache allowlist and offline English/Hindi/Marathi help verified |
 | Reading assist mock browser smoke: `node tests/reading-assist.browser.mjs` | Passed; voice/serial lifecycle and review-only behavior verified |
@@ -17,6 +17,11 @@
 
 Backend emits the existing FastAPI/Python deprecation warning about
 `asyncio.iscoroutinefunction`. No separate lint or typecheck script exists.
+
+The new local extension also passes `backend/.venv/bin/python -m compileall -q
+backend/app backend/tests tools/calibration` and the seven-test calibration suite.
+The Playwright browser module is not installed in this environment, so the updated
+five-tab fieldwork smoke could not be rerun here.
 
 ## Isolation and privacy
 

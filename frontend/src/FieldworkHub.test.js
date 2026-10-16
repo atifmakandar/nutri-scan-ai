@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { createServer } from 'vite';
 import { fieldworkMessages } from './fieldwork-messages.js';
 
-let server; let Hub; let Forms; let Workflows; let Attachments; let Controls;
+let server; let Hub; let Forms; let Workflows; let Attachments; let Controls; let ReviewPanel;
 before(async () => {
   server = await createServer({ configFile: false, server: { middlewareMode: true, hmr: false, watch: null, ws: { port: 30000 + Math.floor(Math.random() * 10000) } } });
   ({ default: Hub } = await server.ssrLoadModule('/src/FieldworkHub.jsx'));
@@ -13,6 +13,7 @@ before(async () => {
   Workflows = await server.ssrLoadModule('/src/FieldworkWorkflows.jsx');
   ({ default: Attachments } = await server.ssrLoadModule('/src/FieldworkAttachments.jsx'));
   Controls = await server.ssrLoadModule('/src/FieldworkControls.jsx');
+  ({ default: ReviewPanel } = await server.ssrLoadModule('/src/ReviewPanel.jsx'));
 });
 after(async () => { await server?.close(); });
 const session = { user: { id: 'user-1', role: 'owner' }, farm: { id: 'farm-1' } };
@@ -20,14 +21,14 @@ const props = { api: () => assert.fail('SSR must not request private records'), 
 const render = (Component, properties = {}) => renderToStaticMarkup(createElement(Component, { ...props, ...properties }));
 const batch = { id: 'batch-1', farm_id: 'farm-1', batch_id: 'BATCH 01', sample_type: 'feed', name: 'West shed feed', quantity: 0, quantity_unit: 'bags', photo_count: 0 };
 
-test('hub supplies four accessible keyboard tabs, linked panels and isolated loading states without SSR API reads', () => {
+test('hub supplies five accessible keyboard tabs, linked panels and isolated loading states without SSR API reads', () => {
   const html = render(Hub);
   assert.match(html, /<section id="fieldwork"/);
-  for (const label of ['Batches', 'Quick observations', 'Reminders', 'Testing help']) assert.ok(html.includes(`>${label}</button>`));
-  assert.equal((html.match(/role="tab"/g) || []).length, 4);
-  assert.equal((html.match(/role="tabpanel"/g) || []).length, 4);
-  assert.equal((html.match(/ hidden=""/g) || []).length, 3);
-  assert.equal((html.match(/Loading farm records…/g) || []).length, 4);
+  for (const label of ['Batches', 'Quick observations', 'Reminders', 'Testing help', 'Review and devices']) assert.ok(html.includes(`>${label}</button>`));
+  assert.equal((html.match(/role="tab"/g) || []).length, 5);
+  assert.equal((html.match(/role="tabpanel"/g) || []).length, 5);
+  assert.equal((html.match(/ hidden=""/g) || []).length, 4);
+  assert.equal((html.match(/Loading farm records…/g) || []).length, 7);
   const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map(([, id]) => id);
   assert.equal(ids.length, new Set(ids).size);
   for (const [, targets] of html.matchAll(/aria-(?:controls|labelledby|describedby)="([^"]+)"/g)) {
@@ -46,10 +47,10 @@ test('signed-out and incomplete scopes never render private workflow forms', () 
 test('viewer and offline states disable mutation fieldsets and explain persistence boundaries', () => {
   const viewer = render(Hub, { session: { ...session, user: { ...session.user, role: 'viewer' } } });
   assert.match(viewer, /Read-only account/);
-  assert.equal((viewer.match(/<fieldset disabled=""/g) || []).length, 4);
+  assert.equal((viewer.match(/<fieldset disabled=""/g) || []).length, 5);
   const offline = render(Hub, { online: false });
   assert.match(offline, /nothing is queued automatically/);
-  assert.equal((offline.match(/<fieldset disabled=""/g) || []).length, 4);
+  assert.equal((offline.match(/<fieldset disabled=""/g) || []).length, 5);
   assert.doesNotMatch(offline, /Loading farm records/);
 });
 
@@ -97,6 +98,14 @@ test('testing cards require upload before report-received and only offer the nex
   assert.doesNotMatch(done, /fw-status-form/);
 });
 
+test('review panel renders local alerts, device registry and audit boundaries without SSR API reads', () => {
+  const html = render(ReviewPanel);
+  for (const label of ['Review alerts', 'Registered devices', 'Audit history', 'Register a device', 'Local registry only']) assert.match(html, new RegExp(label));
+  assert.match(html, /No live telemetry, messages, or safety decisions/);
+  assert.match(html, /Loading farm records…/);
+  assert.doesNotMatch(html, /notification|SMS sent/i);
+});
+
 test('attachments never embed PDF/remote URLs and viewer upload is disabled', () => {
   const html = render(Attachments, { collection: 'testing-requests', recordId: 'r', reports: true, canWrite: false });
   assert.match(html, /image\/jpeg,image\/png,image\/webp,application\/pdf/);
@@ -120,7 +129,7 @@ test('Hindi and Marathi render every form and workflow instruction from t.locale
   for (const locale of ['hi', 'mr']) {
     const t = Object.assign((key) => key, { locale });
     const html = render(Hub, { t });
-    for (const key of ['Farm fieldwork', 'Batches', 'Quick observations', 'Reminders', 'Testing help', 'Collection checklist', 'Display name', 'Save observation', 'Task title', 'Contact details']) assert.ok(html.includes(fieldworkMessages[locale][key]), key);
+    for (const key of ['Farm fieldwork', 'Batches', 'Quick observations', 'Reminders', 'Testing help', 'Review and devices', 'Collection checklist', 'Display name', 'Save observation', 'Task title', 'Contact details']) assert.ok(html.includes(fieldworkMessages[locale][key]), key);
     for (const key of ['Leave anything you did not check as Unknown. This saves observations only, without a screening score.', 'Farm tracking only. This request is not sent or booked automatically.', 'In-app tasks only. No background notifications or SMS are sent.']) assert.ok(html.includes(fieldworkMessages[locale][key]), key);
     assert.doesNotMatch(html, /\{date\}|\{count\}|Private farm records|Save batch|Save observation|Create reminder|Create testing request/);
   }

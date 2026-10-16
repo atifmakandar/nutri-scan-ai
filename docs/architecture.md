@@ -158,13 +158,30 @@ Returns a persisted scan, its original inputs, and the complete result.
 
 `POST /api/v1/analyze` and `GET /api/v1/history` remain available for the existing firmware/demo contract and use the same persistent repository internally.
 
+### Local validation and operations endpoints
+
+The local prototype now adds a review loop without changing the screening result
+contract:
+
+- `POST/GET /api/v1/lab-confirmations` records text copied from a saved report,
+  including qualified values such as `<0.1`, `trace`, or `not detected`.
+- `GET/POST /api/v1/devices` and `/api/v1/devices/{id}/health` keep a
+  farm-scoped device registry and operator/reviewed-capture health history.
+- `GET /api/v1/review-alerts` and `POST /api/v1/review-alerts/{id}/acknowledge`
+  expose deduplicated prototype threshold prompts.
+- `GET /api/v1/audit-events` exposes redacted application mutation events.
+
+These endpoints are SQLite-backed, farm-scoped, and intentionally local. They do
+not perform OCR, laboratory verification, live telemetry, notification delivery,
+or tamper-proof infrastructure auditing.
+
 ## Delivery roadmap
 
-1. **Phase 1 — Traceable screening loop (this iteration):** persistent scans, explainable result, history, farmer-facing web flow.
-2. **Phase 2 — Demo mode and richer UX:** guided 10–20 second simulation, silage monitoring, QR sample identity, report export, multilingual copy.
-3. **Phase 3 — Input adapters:** image upload, OpenCV feature extraction, spectroscopy curve ingestion, ESP32/MQTT event contract.
-4. **Phase 4 — Accounts and scale:** PostgreSQL, object storage, JWT/RBAC for farmer/expert/admin, audit logs and alerts.
-5. **Phase 5 — Scientific validation:** laboratory-labelled dataset, calibration, model evaluation, safety review, and field pilot.
+1. **Phase 1 — Traceable screening loop:** persistent scans, explainable result, history, farmer-facing web flow.
+2. **Phase 1A — Local validation extension (implemented):** report transcription, provenance, device registry, review alerts, audit events, and reviewer UI.
+3. **Phase 2 — Field operations:** batch labels, stronger trend views, encrypted offline storage, CSV export, and explicit sync/conflict tools.
+4. **Phase 3 — Production adapters:** image/NIR ingestion, ESP32/MQTT event delivery, PostgreSQL, object storage, notifications, and managed backups.
+5. **Phase 4 — Scientific validation:** laboratory-labelled datasets, calibration, model evaluation, uncertainty, safety review, and field pilot.
 
 ## Phase 1 acceptance criteria
 

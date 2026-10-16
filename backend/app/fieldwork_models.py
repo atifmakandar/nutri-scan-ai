@@ -35,6 +35,16 @@ BatchKey = Annotated[str, Field(min_length=2, max_length=80), AfterValidator(val
 Notes = Annotated[str, Field(max_length=4000)]
 Answer = Literal["yes", "no", "unknown"]
 RequestStatus = Literal["requested", "collected", "report_received"]
+AlertStatus = Literal["open", "acknowledged"]
+DeviceHealthStatus = Literal["unknown", "operational", "needs_attention", "offline"]
+
+
+def valid_record_text(value: str) -> str:
+    if not value.strip():
+        raise ValueError("Must not be blank")
+    if any(ord(character) < 32 or ord(character) == 127 for character in value):
+        raise ValueError("Must not contain control characters")
+    return value
 
 
 class BatchRequest(RequestModel):
@@ -99,6 +109,39 @@ class TestingStatusRequest(RequestModel):
     report_received_on: CalendarDate | None = None
 
 
+class LabConfirmationRequest(RequestModel):
+    """A manually entered value from a stored testing-request report.
+
+    The value deliberately remains text: laboratory reports commonly contain
+    qualifiers such as ``<0.1``, ``not detected`` and ``trace``.
+    """
+
+    testing_request_id: str = Field(min_length=2, max_length=80)
+    report_attachment_id: str = Field(min_length=2, max_length=80)
+    scan_id: str | None = Field(default=None, min_length=2, max_length=80)
+    analyte: Annotated[str, Field(strict=True, max_length=120), AfterValidator(valid_record_text)]
+    reported_value: Annotated[str, Field(strict=True, max_length=200), AfterValidator(valid_record_text)]
+    unit: str = Field(default="", strict=True, max_length=40)
+    notes: Notes = ""
+
+
+class DeviceRequest(RequestModel):
+    device_id: Annotated[str, Field(strict=True, max_length=120), AfterValidator(valid_record_text)]
+    label: str = Field(default="", strict=True, max_length=120)
+    device_type: str = Field(default="", strict=True, max_length=80)
+    notes: Notes = ""
+
+
+class DeviceHealthRequest(RequestModel):
+    status: DeviceHealthStatus = "unknown"
+    scan_id: str | None = Field(default=None, min_length=2, max_length=80)
+    notes: Notes = ""
+
+
+class ReviewAlertStatusRequest(RequestModel):
+    status: AlertStatus
+
+
 class ObservationResponse(ObservationRequest):
     id: str
     farm_id: str
@@ -135,6 +178,58 @@ class TestingResponse(TestingRequest):
     created_at: AwareDatetime
     updated_at: AwareDatetime
     report_count: int
+
+
+class LabConfirmationResponse(LabConfirmationRequest):
+    id: str
+    farm_id: str
+    batch_id: BatchKey
+    sample_type: SampleType
+    created_at: AwareDatetime
+
+
+class DeviceHealthResponse(DeviceHealthRequest):
+    id: str
+    farm_id: str
+    device_registry_id: str
+    source: Literal["operator_reported", "reviewed_capture"]
+    reviewed_at: AwareDatetime
+    created_at: AwareDatetime
+
+
+class DeviceResponse(DeviceRequest):
+    id: str
+    farm_id: str
+    created_at: AwareDatetime
+    updated_at: AwareDatetime
+    latest_health: DeviceHealthResponse | None
+
+
+class ReviewAlertResponse(BaseModel):
+    id: str
+    farm_id: str
+    scan_id: str
+    batch_id: BatchKey
+    sample_type: SampleType
+    code: str
+    message: str
+    observed_value: float
+    threshold: str
+    status: AlertStatus
+    acknowledged_at: AwareDatetime | None
+    acknowledged_by: str | None
+    created_at: AwareDatetime
+
+
+class AuditEventResponse(BaseModel):
+    id: str
+    farm_id: str
+    actor_id: str | None
+    action: str
+    resource_type: str
+    resource_id: str | None
+    details: dict
+    created_at: AwareDatetime
 
 
 T = TypeVar("T")
