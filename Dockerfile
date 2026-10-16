@@ -5,7 +5,8 @@ WORKDIR /src/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend/ ./
-RUN VITE_PUBLIC_API_URL= VITE_API_URL= npm run build
+RUN npm test \
+    && VITE_PUBLIC_API_URL= VITE_API_URL= npm run build
 
 FROM python:3.12.9-slim-bookworm AS python-dependencies
 
@@ -13,19 +14,21 @@ WORKDIR /app/backend
 COPY backend/requirements.lock ./requirements.lock
 RUN python -m pip install --no-cache-dir -r requirements.lock
 
-FROM python:3.12.9-slim-bookworm AS test
+FROM python:3.12.9-slim-bookworm AS backend-test
 
 WORKDIR /app
 COPY --from=python-dependencies /usr/local /usr/local
-COPY --from=frontend-build /src/frontend/node_modules /app/frontend/node_modules
 COPY backend ./backend
-COPY frontend ./frontend
 COPY tools ./tools
 RUN python -m compileall backend/app \
     && (cd backend && python -m unittest discover -s tests -p "test_*.py") \
-    && python -m unittest discover -s tools/calibration -p "test_*.py" \
-    && npm --prefix frontend test \
-    && npm --prefix frontend run build
+    && python -m unittest discover -s tools/calibration -p "test_*.py"
+
+# Building this target runs both the frontend and backend checks above. Keeping
+# the test target dependent on both stages makes the documented Docker test
+# command work without requiring Node or Python on the host.
+FROM backend-test AS test
+COPY --from=frontend-build /src/frontend/dist /app/frontend-dist
 
 FROM python:3.12.9-slim-bookworm AS runtime
 
