@@ -5,6 +5,8 @@ WORKDIR /src/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend/ ./
+# One frontend test verifies its translations against the backend engine source.
+COPY backend/app/engine.py /src/backend/app/engine.py
 RUN npm test \
     && VITE_PUBLIC_API_URL= VITE_API_URL= npm run build
 
