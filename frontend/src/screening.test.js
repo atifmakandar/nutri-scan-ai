@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  createEmptyScreening, english, getScreeningBatches, parseReading, parseScreening,
+  createEmptyScreening, english, getScreeningBatches, loadSyntheticDemo, parseReading, parseScreening,
   SCREENING_GROUPS, SCREENING_OPTIONAL_GROUPS, screeningStepErrors, screeningTransition, updateScreeningReading, validateScreening,
 } from './screening.js';
 import { snapshotDraftForm } from './drafts.js';
@@ -105,6 +105,25 @@ test('optional reported capability inputs remain optional and are not detection 
   const empty = parseScreening(complete());
   assert.equal(empty.value.inputs.supplemental, undefined);
   assert.equal(SCREENING_OPTIONAL_GROUPS[0].fields.length, 8);
+});
+
+test('synthetic demo is explicit, visibly named and still requires the ordinary review gate', () => {
+  const demo = loadSyntheticDemo(complete());
+  assert.equal(demo.batch_id, 'DEMO-SILAGE-01');
+  assert.equal(demo.sample_type, 'silage');
+  assert.equal(demo.source_mode, 'manual');
+  assert.equal(demo.inputs.sensor.moisture_pct, 62);
+  assert.equal(demo.inputs.nir.protein_pct, 8.8);
+  assert.equal(demo.inputs.vision.mold_score, 0.08);
+  assert.equal(demo.inputs.supplemental.aflatoxin_concern_score, 0.6);
+  assert.deepEqual(parseScreening(demo).errors, {});
+  assert.equal(screeningTransition(demo, { step: 3, online: true, confirmed: false }).reason, 'confirmation');
+});
+
+test('ESP32 source requires reviewed capture provenance instead of a manually selected label', () => {
+  const form = { ...complete(), source_mode: 'esp32' };
+  assert.match(validateScreening(form).source_mode, /reviewed USB serial capture/);
+  assert.equal(validateScreening({ ...form, instrument_capture: { device_id: 'meter-1', readings: [{ field: 'ph', value: 0, unit: 'pH' }] } }).source_mode, undefined);
 });
 
 test('saved batches deduplicate by farm/sample/batch and never mix farms or sample types', () => {

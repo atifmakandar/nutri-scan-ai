@@ -7,6 +7,10 @@ import { resultsMessages } from './results-messages.js';
 
 export const SCREENING_NOTICE = 'Uncalibrated prototype screening. This is not a laboratory test and cannot guarantee feed safety, even with a low risk result.';
 export const CONFIDENCE_NOTICE = 'Confidence is a heuristic from the prototype formula, not a probability of correctness or feed safety.';
+const REVIEW_SIGNAL_LABELS = {
+  mineral_concern: 'Mineral concern input', urea_concern: 'Urea concern input',
+  sand_silica_concern: 'Sand/silica concern input', aflatoxin_concern: 'Aflatoxin concern input', fungal_concern: 'Fungal concern input',
+};
 
 // Extend the parent's translator without changing its catalog or locale ownership.
 export function resultsText(t = english) {
@@ -36,6 +40,12 @@ export function resultSummary(record, t = english) {
     notice: text(SCREENING_NOTICE),
     confidenceNotice: text(CONFIDENCE_NOTICE),
   };
+}
+
+export function reviewRequiredSignals(record) {
+  return Array.isArray(record?.result?.capability_signals)
+    ? record.result.capability_signals.filter((signal) => signal?.status === 'review_required')
+    : [];
 }
 
 export function spokenSummary(record, t = english) {
@@ -193,6 +203,12 @@ export function buildShareSummary(record, { t = english, includeFarmId = false, 
     text('Next steps from the saved advice'),
     ...(summary.advisory.length ? summary.advisory.map(safe) : [text('No advice was saved. Ask a qualified adviser before making a feeding decision.')]),
     summary.confidenceNotice);
+  const reviewSignals = reviewRequiredSignals(record);
+  if (reviewSignals.length) {
+    lines.push(text('Review required before feeding decisions'),
+      text('One or more operator- or laboratory-supplied concern inputs need qualified confirmation. This is not a detection result and does not change the prototype score.'),
+      ...reviewSignals.map((signal) => text(REVIEW_SIGNAL_LABELS[signal.code] || signal.code)));
+  }
   lines.push(includePhotos === true
     ? text('Selected evidence photos are included only in supported native device sharing. Copy and WhatsApp send text only, without photo URLs.')
     : text('Photos are excluded: private photo evidence cannot be safely shared automatically.'));

@@ -17,6 +17,7 @@ not a validated measurement system or feed-safety certification product.
 - Feed/silage record and prototype screening API
 - Numerical input adapters and optional reviewed USB serial capture; photos are evidence only
 - Uncalibrated quality score and heuristic confidence, not a validated probability
+- Transparent weighted score breakdown so each prototype factor is inspectable
 - Supplied moisture, dry matter, protein, fiber, pH and temperature values with prototype fermentation/spoilage labels
 - Input-anomaly/spoilage indicators, not adulteration or toxin tests
 - Prototype guidance requiring qualified review, not feeding clearance
@@ -27,6 +28,7 @@ not a validated measurement system or feed-safety certification product.
 - Private farm accounts with owner/member/viewer roles
 - Evidence-only photo attachments for saved scans
 - Hindi, Marathi, and English dashboard copy
+- Explicit opt-in synthetic demo scenario for repeatable buildathon walkthroughs; it remains review-gated and clearly labelled
 - Per-farm offline reading drafts with explicit idempotent sync
 - Public-help offline PWA shell; explicit reading drafts in an already-loaded signed-in app
 - USB serial ESP32 firmware template with synthetic demo mode enabled by default
@@ -43,6 +45,9 @@ pricing and cash-flow scenarios, sales/demo copy, customer/pilot/privacy templat
 review drafts for a bounded workflow pilot, not commercial, legal, scientific or
 production approval. Use its current claims matrix rather than older aspirational
 architecture text for customer-facing statements.
+
+For the buildathon submission story, demo sequence, judge mapping, and final
+submission checklist, see [`docs/buildathon-submission.md`](docs/buildathon-submission.md).
 
 ## Buildathon capability scope
 

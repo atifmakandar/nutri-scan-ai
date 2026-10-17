@@ -6,7 +6,7 @@ import { useScanSearch } from './BatchTrends.jsx';
 import ShareEvidencePicker from './ShareEvidencePicker.jsx';
 import {
   buildShareSummary, compareSavedRecords, comparisonSearchPath, CONFIDENCE_NOTICE,
-  copySummaryText, isSavedResult, openWhatsAppSummary, RESULT_METRICS, resultSummary,
+  copySummaryText, isSavedResult, openWhatsAppSummary, RESULT_METRICS, resultSummary, reviewRequiredSignals,
   resultsText, savedDate, shareSummaryText, spokenSummary,
 } from './farmer-results.js';
 import './farmer-results.css';
@@ -25,7 +25,9 @@ export default function FarmerResults({ record, api, t = english, renderListen, 
     </header>
     <p className="fr-score">{text('Prototype score')}: <strong>{measurement(record, 'quality_score') ?? text('Not recorded')}</strong> / 100</p>
     <p className="fr-safety" role="note"><strong>{summary.notice}</strong></p>
+    <ReviewRequiredBanner record={record} t={text} />
     {typeof renderListen === 'function' && <div className="fr-listen">{renderListen(spokenSummary(record, text))}</div>}
+    <ScoreBreakdown record={record} t={text} />
     <section className="fr-explanation" aria-labelledby={`${id}-why`}>
       <h4 id={`${id}-why`}>{text('Why this result needs context')}</h4>
       <p className="fr-note">{text('These are the saved anomaly indicators, not an explanation of every score contribution.')}</p>
@@ -42,6 +44,45 @@ export default function FarmerResults({ record, api, t = english, renderListen, 
     <CapabilitySignals signals={record.result.capability_signals} t={text} />
     <SavedComparison record={record} api={api} t={text} />
     <ShareSummary record={record} api={api} t={text} farmName={farmName} />
+  </section>;
+}
+
+function ReviewRequiredBanner({ record, t }) {
+  const signals = reviewRequiredSignals(record);
+  if (!signals.length) return null;
+  return <section className="fr-review-required" role="alert" aria-label={t('Qualified review is required')}>
+    <h4>{t('Review required before feeding decisions')}</h4>
+    <p>{t('One or more operator- or laboratory-supplied concern inputs need qualified confirmation. This is not a detection result and does not change the prototype score.')}</p>
+    <ul>{signals.map((signal, index) => <li key={`${signal.code}-${index}`}>{t(signalLabel(signal.code))}</li>)}</ul>
+  </section>;
+}
+
+const factorLabels = {
+  ph_fit: 'pH fit', moisture_fit: 'Moisture fit', nutrition_indicator: 'Nutrition indicator', visual_indicator: 'Visual indicator',
+};
+const signalLabels = {
+  mineral_concern: 'Mineral concern input', urea_concern: 'Urea concern input',
+  sand_silica_concern: 'Sand/silica concern input', aflatoxin_concern: 'Aflatoxin concern input', fungal_concern: 'Fungal concern input',
+};
+const signalLabel = (code) => signalLabels[code] || code;
+
+function ScoreBreakdown({ record, t }) {
+  const factors = Array.isArray(record?.result?.score_breakdown) ? record.result.score_breakdown : [];
+  if (!factors.length) return null;
+  return <section className="fr-score-breakdown" aria-labelledby="score-breakdown-heading">
+    <h4 id="score-breakdown-heading">{t('Transparent score breakdown')}</h4>
+    <p className="fr-note">{t('Each factor is a weighted prototype contribution; it is not a validated model explanation.')}</p>
+    <div className="fr-table-scroll" role="region" tabIndex={0} aria-label={t('Transparent score breakdown')}>
+      <table>
+        <thead><tr><th scope="col">{t('Factor')}</th><th scope="col">{t('Factor score')}</th><th scope="col">{t('Weight')}</th><th scope="col">{t('Contribution')}</th></tr></thead>
+        <tbody>{factors.map((factor, index) => <tr key={`${factor.code || 'factor'}-${index}`}>
+          <th scope="row">{t(factorLabels[factor.code] || factor.code)}</th>
+          <td>{Number.isFinite(factor.score) ? `${factor.score} / 100` : t('Not recorded')}</td>
+          <td>{Number.isFinite(factor.weight) ? `${Math.round(factor.weight * 100)}%` : t('Not recorded')}</td>
+          <td>{Number.isFinite(factor.contribution) ? `${factor.contribution} points` : t('Not recorded')}</td>
+        </tr>)}</tbody>
+      </table>
+    </div>
   </section>;
 }
 

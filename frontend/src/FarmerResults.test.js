@@ -49,6 +49,23 @@ test('saved instrument provenance survives nullable API metadata and stays expli
   assert.doesNotMatch(html, /METER<farm>|Calibration reference \(device report\)/);
 });
 
+test('review-required inputs are prominent and transparent score factors are visible', () => {
+  const record = saved();
+  record.result.capability_signals = [{ code: 'aflatoxin_concern', status: 'review_required' }];
+  record.result.score_breakdown = [
+    { code: 'ph_fit', score: 100, weight: 0.28, contribution: 28 },
+    { code: 'moisture_fit', score: 100, weight: 0.22, contribution: 22 },
+  ];
+  const html = render(FarmerResults, { record });
+  assert.match(html, /Review required before feeding decisions/);
+  assert.match(html, /not a detection result and does not change the prototype score/);
+  assert.match(html, /Aflatoxin concern input/);
+  assert.match(html, /Transparent score breakdown/);
+  assert.match(html, /pH fit/);
+  assert.match(html, /28%/);
+  assert.match(html, /28 points/);
+});
+
 test('risk has readable text plus icon; prominent uncalibrated safety and heuristic qualifications stay outside details', () => {
   for (const [risk, expected] of [['LOW', 'Lower screening risk'], ['MEDIUM', 'Moderate screening risk'], ['HIGH', 'Higher screening risk'], ['<unsafe>', 'Screening risk not recorded']]) {
     const record = saved();

@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from uuid import uuid4
-from .models import AnalyzeRequest, AnalysisResult, CapabilitySignal
+from .models import AnalyzeRequest, AnalysisResult, CapabilitySignal, ScoreFactor
 
 
 def clamp(x, lo=0.0, hi=100.0):
@@ -17,7 +17,14 @@ def analyze(req: AnalyzeRequest) -> AnalysisResult:
     moisture_score = 100 - min(abs(s.moisture_pct - (62 if req.sample_type == "silage" else 12)) * 2.2, 100)
     vision_penalty = (v.mold_score * 45 + v.color_anomaly * 25 + v.surface_damage * 10)
     nutritional_score = clamp((n.protein_pct * 4) + (n.dry_matter_pct * 0.7) - (n.fiber_pct * 0.8) + 45)
-    score = clamp(0.28 * ph_score + 0.22 * moisture_score + 0.25 * nutritional_score + 0.25 * (100 - vision_penalty))
+    visual_score = clamp(100 - vision_penalty)
+    factors = (
+        ("ph_fit", ph_score, 0.28),
+        ("moisture_fit", moisture_score, 0.22),
+        ("nutrition_indicator", nutritional_score, 0.25),
+        ("visual_indicator", visual_score, 0.25),
+    )
+    score = clamp(sum(value * weight for _, value, weight in factors))
 
     risk = "LOW" if score >= 75 else "MEDIUM" if score >= 50 else "HIGH"
     confidence = clamp(70 + (min(n.dry_matter_pct, 60) / 6) - v.mold_score * 10, 55, 96)
@@ -74,4 +81,6 @@ def analyze(req: AnalyzeRequest) -> AnalysisResult:
         id=str(uuid4()), created_at=datetime.now(timezone.utc), sample_type=req.sample_type,
         quality_score=round(score, 1), confidence=round(confidence, 1), risk_level=risk,
         parameters=parameters, anomalies=anomalies, advisory=advisory, capability_signals=signals,
+        score_breakdown=[ScoreFactor(code=code, score=round(value, 1), weight=weight, contribution=round(value * weight, 1))
+                         for code, value, weight in factors],
     )

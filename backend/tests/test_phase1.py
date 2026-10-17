@@ -44,6 +44,10 @@ class PhaseOneTests(unittest.TestCase):
         self.assertIn(result.risk_level, {"LOW", "MEDIUM", "HIGH"})
         self.assertEqual(result.assessment.calibration_status, "uncalibrated")
         self.assertTrue(result.advisory)
+        self.assertEqual([factor.code for factor in result.score_breakdown], [
+            "ph_fit", "moisture_fit", "nutrition_indicator", "visual_indicator",
+        ])
+        self.assertAlmostEqual(sum(factor.contribution for factor in result.score_breakdown), result.quality_score, places=1)
 
     def test_scan_is_persisted_and_readable_after_repository_reopen(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -86,6 +90,21 @@ class PhaseOneTests(unittest.TestCase):
                     "vision": {"mold_score": 0.08, "color_anomaly": 0.05, "surface_damage": 0.02},
                 },
             )
+
+        for temperature in (-20.001, 80.001):
+            with self.subTest(temperature=temperature), self.assertRaises(ValidationError):
+                ScanCreateRequest(
+                    farm_id="test-farm",
+                    batch_id="SIL-TEMP",
+                    sample_type="silage",
+                    inputs={
+                        "sensor": {
+                            "moisture_pct": 62, "ph": 4.2, "temperature_c": temperature, "humidity_pct": 68,
+                        },
+                        "nir": {"protein_pct": 8.8, "dry_matter_pct": 38, "fiber_pct": 28},
+                        "vision": {"mold_score": 0.08, "color_anomaly": 0.05, "surface_damage": 0.02},
+                    },
+                )
 
     def test_optional_reported_capabilities_are_preserved_without_becoming_detection_claims(self):
         request = sample_request()

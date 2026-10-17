@@ -1,7 +1,8 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import {
   english, getScreeningBatches, SCREENING_GROUPS, SCREENING_OPTIONAL_GROUPS, SCREENING_SOURCES,
-  screeningFieldStep, screeningTransition, updateScreeningReading, validateScreening,
+  loadSyntheticDemo, screeningFieldStep, screeningTransition, SYNTHETIC_DEMO_BATCH,
+  updateScreeningReading, validateScreening,
 } from './screening.js';
 import './farmer-screening.css';
 
@@ -183,6 +184,9 @@ export function ScreeningBatch({ form, onChange, history = [], disabled, t = eng
       {batches.map((batch) => <option key={batch.batch_id} value={batch.batch_id}>{batch.batch_id}</option>)}
     </select>
     <p id={`${id}-saved-note`}>{t(batches.length ? 'Only batches in the supplied history are listed. Selecting a batch reuses its ID, not its old readings.' : 'No matching batches in the supplied history. Enter a new batch ID below.')}</p>
+    <button className="farmer-button farmer-button-secondary farmer-demo-button" type="button" disabled={disabled}
+      onClick={() => onChange(loadSyntheticDemo(form))}>{t('Load synthetic demo scenario')}</button>
+    <p className="farmer-demo-note">{t('Fills DEMO-SILAGE-01 with synthetic readings for a presentation. Review every value before submitting.')}</p>
     <label htmlFor={`${id}-batch_id`}>{t('Batch ID')}</label>
     <input id={`${id}-batch_id`} data-screening-field="batch_id" name="batch_id" value={form.batch_id ?? ''} minLength={2} maxLength={80} required
       onChange={(event) => onChange({ ...form, batch_id: event.target.value })} onBlur={() => onBlur('batch_id')}
@@ -195,6 +199,7 @@ export function ScreeningBatch({ form, onChange, history = [], disabled, t = eng
 export function ScreeningReadings({ form, onChange, disabled, t = english, id = 'readings', errors = {}, onBlur = () => {}, renderHelp, showOptional = false }) {
   return <>
     <p className="farmer-notice">{t('All 10 readings are required by the screening service. Missing measurements block screening. Use measurement help; do not invent values.')}</p>
+    {form.batch_id === SYNTHETIC_DEMO_BATCH && <p className="farmer-demo-banner" role="note"><strong>{t('Synthetic demo data')}</strong> — {t('These values are for a presentation only, not a field measurement. Replace them with reviewed readings for real use.')}</p>}
     <details className="farmer-source-details" open={errors.source_mode ? true : undefined}>
       <summary>{t('Where did these readings come from?')}</summary>
       <p>{t('Manual entry means typing measurements you already have. It does not measure the sample or fill missing readings.')}</p>

@@ -25,6 +25,9 @@
 .farmer-home-action small { display: block; margin-top: 8px; color: #415d4d; font-size: .95rem; line-height: 1.5; }
 .farmer-action-icon { display: grid; place-items: center; flex: 0 0 48px; width: 48px; height: 48px; border-radius: 12px; background: #d9eac9; font-size: 2rem; font-weight: 700; }
 .farmer-notice { padding: 14px 16px; border-inline-start: 4px solid #916019; border-radius: 6px; background: #fff4df; color: #654311; }
+.farmer-demo-banner { padding: 14px 16px; border: 2px solid #4b7c59; border-inline-start-width: 6px; border-radius: 6px; background: #edf8e8; color: #244d32; }
+.farmer-demo-note { color: #415d4d; font-size: .92rem; }
+.farmer-demo-button { margin-block: 8px 0; }
 .farmer-progress { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 0; margin: 24px 0 16px; list-style: none; }
 .farmer-progress li { display: flex; align-items: center; gap: 8px; padding-block: 12px; border-bottom: 3px solid #dfe9df; color: #526b60; }
 .farmer-progress li > span:first-child { display: grid; place-items: center; min-width: 32px; height: 32px; border: 1px solid currentColor; border-radius: 50%; }

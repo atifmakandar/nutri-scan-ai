@@ -55,6 +55,16 @@ export const SCREENING_SOURCES = [
   { value: 'esp32', label: 'ESP32 field unit' },
 ];
 
+// Deliberately opt-in fixture for a reliable buildathon walkthrough. It is
+// never loaded by default and remains subject to the same review/submit gate.
+export const SYNTHETIC_DEMO_BATCH = 'DEMO-SILAGE-01';
+const SYNTHETIC_DEMO_VALUES = Object.freeze({
+  moisture_pct: 62, ph: 4.2, temperature_c: 24, humidity_pct: 68,
+  protein_pct: 8.8, dry_matter_pct: 38, fiber_pct: 28,
+  mold_score: 0.08, color_anomaly: 0.05, surface_damage: 0.02,
+  aflatoxin_concern_score: 0.6,
+});
+
 export function english(text, values = {}) {
   return text.replace(/\{(\w+)\}/g, (match, key) => Object.hasOwn(values, key) ? String(values[key]) : match);
 }
@@ -66,6 +76,16 @@ export function createEmptyScreening(farmId = '') {
       Object.fromEntries(group.fields.map((field) => [field.key, ''])),
     ])),
   };
+}
+
+/** Load only the clearly-labelled synthetic demo scenario; never auto-run it. */
+export function loadSyntheticDemo(form) {
+  let next = { ...form, batch_id: SYNTHETIC_DEMO_BATCH, sample_type: 'silage', source_mode: 'manual',
+    device_id: undefined, collected_at: undefined, instrument_capture: undefined };
+  for (const [fieldKey, value] of Object.entries(SYNTHETIC_DEMO_VALUES)) {
+    next = updateScreeningReading(next, fieldKey, value);
+  }
+  return next;
 }
 
 // Match decimal number inputs without Number('') / Number(null) silently becoming 0.
@@ -105,6 +125,11 @@ export function validateScreening(form, t = english) {
   if (!validId(form?.batch_id)) errors.batch_id = t('Batch ID must contain 2–80 characters without surrounding whitespace or control characters.');
   if (!['feed', 'silage'].includes(form?.sample_type)) errors.sample_type = t('Choose cattle feed or silage.');
   if (!SCREENING_SOURCES.some((source) => source.value === form?.source_mode)) errors.source_mode = t('Choose a valid input source.');
+  const hasReviewedCapture = form?.instrument_capture && typeof form.instrument_capture.device_id === 'string'
+    && Array.isArray(form.instrument_capture.readings) && form.instrument_capture.readings.length > 0;
+  if (form?.source_mode === 'esp32' && !hasReviewedCapture) {
+    errors.source_mode = t('Choose reviewed USB serial capture before using the ESP32 source.');
+  }
   for (const group of SCREENING_GROUPS) {
     for (const field of group.fields) {
       const { error } = parseReading(form?.inputs?.[group.key]?.[field.key], field, t);

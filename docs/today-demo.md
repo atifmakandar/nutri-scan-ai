@@ -54,6 +54,12 @@ npm run preview -- --host 0.0.0.0 --port 5174 --strictPort
    upload a demo PDF report, download it, and mark the request report received.
 8. Open **Check feed or silage**. Use the batch card’s **Use this batch** action.
    Only the batch identity is copied; the old readings are not copied.
+9. For the fast screening walkthrough, open **Check feed or silage**, continue to
+   **Choose batch**, and click **Load synthetic demo scenario**. The app fills the
+   clearly-labelled `DEMO-SILAGE-01` fixture, but still requires review and
+   confirmation before submission. In the result, show the independent **Review
+   required** banner and the transparent score breakdown; neither is a safety
+   certificate.
 
 ## 3. Use the serial emulator without hardware
 

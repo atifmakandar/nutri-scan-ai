@@ -39,6 +39,17 @@ test('reports preserve optional capability inputs as reported/review flags witho
   assert.match(html, /not confirmed detection results/);
 });
 
+test('reports make review-required concerns and transparent score contributions prominent', () => {
+  const record = savedRecord();
+  record.result.score_breakdown = [{ code: 'ph_fit', score: 100, weight: 0.28, contribution: 28 }];
+  const html = buildReportHtml(record);
+  assert.match(html, /Review required before feeding decisions/);
+  assert.match(html, /not a detection result and does not change the prototype score/);
+  assert.match(html, /Transparent score breakdown/);
+  assert.match(html, /pH fit/);
+  assert.match(html, /28 points/);
+});
+
 function deepFreeze(value) {
   Object.values(value).forEach((child) => {
     if (child && typeof child === 'object') deepFreeze(child);

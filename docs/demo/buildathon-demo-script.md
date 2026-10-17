@@ -13,14 +13,17 @@ NutriScan AI turns that process into one clear field workflow: sample, scan, ana
 and act.
 
 A farmer creates a batch, chooses feed or silage, and records measured values from a
-report, instrument, or reviewed sensor input. The guided form keeps the sample
-identity, units, and ten required readings together—so missing data is visible rather
-than guessed.
+report, instrument, or reviewed sensor input. For a repeatable presentation, the
+operator can explicitly load the clearly-labelled synthetic `DEMO-SILAGE-01` scenario;
+the normal review and confirmation gate still applies. The guided form keeps the
+sample identity, units, and ten required readings together—so missing data is visible
+rather than guessed.
 
-NutriScan then produces an explainable prototype score, risk signal, anomalies, and
-the next practical action. This example is a low-risk result at 93.9 out of 100. The
-important part is the context: it is explicitly uncalibrated, not a laboratory test,
-and never a feed-safety certificate.
+NutriScan then produces a transparent prototype score breakdown, risk signal, review
+flags, anomalies, and the next practical action. The important part is the context:
+it is explicitly uncalibrated, not a laboratory test, and never a feed-safety
+certificate. A reported concern appears as an independent **Review required** banner;
+it is not hidden by a reassuring prototype risk band.
 
 Every saved screening becomes traceable farm history. Operators can compare batches,
 download a report, use multilingual measurement help, keep offline drafts, attach

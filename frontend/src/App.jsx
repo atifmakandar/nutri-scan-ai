@@ -30,11 +30,11 @@ const api = createApi({
 });
 
 const stages = [
-  'Validating sample inputs',
-  'Fusing sensor and visual signals',
-  'Estimating nutritional profile',
-  'Checking storage and spoilage risk',
-  'Generating farmer advisory',
+  'Validating supplied readings',
+  'Applying transparent prototype rules',
+  'Summarizing recorded indicators',
+  'Checking prototype review thresholds',
+  'Preparing farmer advisory',
 ];
 
 export default function App() {
@@ -65,6 +65,7 @@ export default function App() {
   const visibleDraftStatus = draftStatus?.accountKey === accountKey ? draftStatus.value : null;
   const latestRecord = session ? selectedRecord || result : null;
   const latest = latestRecord?.result;
+  const reviewedCapture = form.instrument_capture;
   const averageScore = useMemo(() => {
     if (!history.length) return '—';
     return Math.round(history.reduce((sum, item) => sum + item.result.quality_score, 0) / history.length);
@@ -238,9 +239,9 @@ export default function App() {
           <a className="nav-item" href="#account"><span>⌂</span> {t('Account')}</a>
         </nav>
         <div className="device-card">
-          <div className="device-head"><span className="online-dot" /> <strong>Field unit NS-04</strong></div>
-            <p>{t('Prototype input contract ready')}</p>
-            <span className="device-link">{t('Manual mode active')}</span>
+          <div className="device-head"><span className="online-dot" /> <strong>{reviewedCapture?.device_id || t('No device connected')}</strong></div>
+            <p>{reviewedCapture ? t('Reviewed capture attached') : t('Reviewed input only — no live telemetry')}</p>
+            <span className="device-link">{reviewedCapture ? t('Reviewed capture') : t('Manual mode active')}</span>
         </div>
         <div className="sidebar-footer">Designed for field use<br /><span>Screening prototype • v0.2</span></div>
       </aside>
@@ -282,7 +283,7 @@ export default function App() {
           <div className="metrics">
             <article className="metric-card"><span className="metric-icon green">✓</span><div><p>{t('Average quality')}</p><strong>{averageScore}<small>{averageScore === '—' ? '' : ' / 100'}</small></strong><span className="positive">{t('Across {count} saved scans', { count: history.length || 0 })}</span></div></article>
             <article className="metric-card"><span className="metric-icon amber">!</span><div><p>{t('Screening status')}</p><strong>{latest ? t(latest.risk_level) : t('READY')}</strong><span className="warning">{t('Prototype estimate')}</span></div></article>
-            <article className="metric-card"><span className="metric-icon blue">⌁</span><div><p>{t('Input channels')}</p><strong>3</strong><span className="muted">{t('Vision · NIR · sensors')}</span></div></article>
+             <article className="metric-card"><span className="metric-icon blue">⌁</span><div><p>{t('Input groups')}</p><strong>3</strong><span className="muted">{t('Supplied readings · optional evidence')}</span></div></article>
           </div>
         </section>
 
@@ -303,11 +304,11 @@ export default function App() {
           </section>
         </section>
 
-        {busy && <div className="analysis-strip"><div className="analysis-spinner" /><div><strong>{t('AI screening in progress')}</strong><p>{t(stages[Math.min(stage, stages.length - 1)])}…</p></div><span>{Math.min(stage + 1, stages.length)} / {stages.length}</span></div>}
+         {busy && <div className="analysis-strip"><div className="analysis-spinner" /><div><strong>{t('Prototype screening in progress')}</strong><p>{t(stages[Math.min(stage, stages.length - 1)])}…</p></div><span>{Math.min(stage + 1, stages.length)} / {stages.length}</span></div>}
 
         {!farmerMode && <section className="monitor-card" id="how-it-works">
           <div><p className="eyebrow">{t('FROM SIGNAL TO DECISION')}</p><h2>{t('One screening loop, explained clearly.')}</h2><p>{t('Nutri-Scan combines available field inputs into a transparent risk estimate. Add calibrated hardware and laboratory-labelled models as the product scales.')}</p></div>
-          <div className="pipeline"><PipelineStep icon="01" title={t('Capture')} text={t('Image, NIR and sensor signals')} /><span className="pipeline-arrow">→</span><PipelineStep icon="02" title={t('Analyze')} text={t('Validated feature fusion')} /><span className="pipeline-arrow">→</span><PipelineStep icon="03" title={t('Act')} text={t('Advisory and traceability')} /></div>
+           <div className="pipeline"><PipelineStep icon="01" title={t('Capture')} text={t('Supplied readings + optional evidence')} /><span className="pipeline-arrow">→</span><PipelineStep icon="02" title={t('Analyze')} text={t('Transparent prototype rules')} /><span className="pipeline-arrow">→</span><PipelineStep icon="03" title={t('Act')} text={t('Advisory and traceability')} /></div>
         </section>}
 
         {session && <Suspense fallback={<p role="status">{t('Loading saved scans…')}</p>}><HistoryPanel key={accountKey} refreshKey={historyRevision} api={api} onSelect={selectSavedRecord} canWrite={canWrite} t={t} /></Suspense>}
@@ -334,7 +335,7 @@ function RiskBadge({ level, t = (value) => value }) {
 }
 
 function EmptyResult({ t = (value) => value }) {
-  return <div className="empty-result"><div className="empty-icon">⌁</div><h3>{t('Your result will appear here')}</h3><p>{t('Run a sample screening to see quality score, risk signals and a simple next action.')}</p><div className="mini-pipeline"><span>{t('Inputs')}</span><i>→</i><span>{t('AI fusion')}</span><i>→</i><span>{t('Advisory')}</span></div></div>;
+  return <div className="empty-result"><div className="empty-icon">⌁</div><h3>{t('Your result will appear here')}</h3><p>{t('Run a sample screening to see quality score, risk signals and a simple next action.')}</p><div className="mini-pipeline"><span>{t('Inputs')}</span><i>→</i><span>{t('Prototype rules')}</span><i>→</i><span>{t('Advisory')}</span></div></div>;
 }
 
 function PipelineStep({ icon, title, text }) {

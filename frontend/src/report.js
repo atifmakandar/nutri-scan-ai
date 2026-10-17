@@ -88,6 +88,35 @@ function capabilitySignals(values) {
   return `<ul>${values.map((signal) => `<li>${escapeHtml(labels[signal?.code] || signal?.code)} — ${escapeHtml(signal?.status === 'reported' ? 'Reported input' : 'Qualified confirmation required')}</li>`).join('')}</ul>`;
 }
 
+const SCORE_FACTOR_LABELS = {
+  ph_fit: 'pH fit', moisture_fit: 'Moisture fit', nutrition_indicator: 'Nutrition indicator', visual_indicator: 'Visual indicator',
+};
+
+function scoreBreakdown(values) {
+  if (!Array.isArray(values) || values.length === 0) return '';
+  const rows = values.map((factor) => `<tr><th scope="row">${escapeHtml(SCORE_FACTOR_LABELS[factor?.code] || factor?.code)}</th><td>${escapeHtml(text(factor?.score))} / 100</td><td>${escapeHtml(typeof factor?.weight === 'number' && Number.isFinite(factor.weight) ? `${Math.round(factor.weight * 100)}%` : MISSING)}</td><td>${escapeHtml(typeof factor?.contribution === 'number' && Number.isFinite(factor.contribution) ? `${factor.contribution} points` : MISSING)}</td></tr>`).join('');
+  return `<section aria-labelledby="breakdown-heading">
+    <h2 id="breakdown-heading">Transparent score breakdown</h2>
+    <p class="subtle">Each factor is a weighted prototype contribution; it is not a validated model explanation.</p>
+    <table><caption>Prototype factor contributions</caption><thead><tr><th scope="col">Factor</th><th scope="col">Factor score</th><th scope="col">Weight</th><th scope="col">Contribution</th></tr></thead><tbody>${rows}</tbody></table>
+  </section>`;
+}
+
+function reviewRequired(values) {
+  if (!Array.isArray(values)) return '';
+  const labels = {
+    mineral_concern: 'Mineral concern input', urea_concern: 'Urea concern input',
+    sand_silica_concern: 'Sand/silica concern input', aflatoxin_concern: 'Aflatoxin concern input', fungal_concern: 'Fungal concern input',
+  };
+  const signals = values.filter((signal) => signal?.status === 'review_required');
+  if (!signals.length) return '';
+  return `<section class="review-required" aria-labelledby="review-required-heading">
+    <h2 id="review-required-heading">Review required before feeding decisions</h2>
+    <p>One or more operator- or laboratory-supplied concern inputs need qualified confirmation. This is not a detection result and does not change the prototype score.</p>
+    <ul>${signals.map((signal) => `<li>${escapeHtml(labels[signal?.code] || signal?.code)}</li>`).join('')}</ul>
+  </section>`;
+}
+
 function measurements(parameters) {
   const entries = isDictionary(parameters) ? Object.entries(parameters) : [];
   if (entries.length === 0) return '<p>No measurements recorded.</p>';
@@ -117,6 +146,7 @@ const REPORT_STYLES = `
   button { background: #245b3c; color: #fff; border: 2px solid #245b3c; border-radius: 6px; padding: 10px 18px; font: inherit; font-weight: 700; cursor: pointer; }
   button:focus-visible { outline: 3px solid #956421; outline-offset: 3px; }
   .disclaimer { border: 2px solid #506c42; border-left-width: 8px; background: #f4f6e9; padding: 18px; }
+  .review-required { border: 2px solid #982e26; border-left-width: 8px; background: #fff0ed; padding: 18px; }
   .disclaimer h2 { color: #334b27; }
   .disclaimer p:last-child { margin-bottom: 0; }
   dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; margin: 0; }
@@ -214,7 +244,7 @@ export function buildReportHtml(record) {
     <p class="subtle">Dates with a recorded timezone are displayed in UTC. Missing timezone information is explicitly marked.</p>
   </section>
 
-  <section aria-labelledby="screening-heading">
+   <section aria-labelledby="screening-heading">
     <h2 id="screening-heading">Screening summary</h2>
     <dl class="scores">
       ${detail('Quality score', score(result.quality_score))}
@@ -222,7 +252,9 @@ export function buildReportHtml(record) {
       ${detail('Heuristic confidence', score(result.confidence))}
     </dl>
     <p>Heuristic confidence is a prototype indicator, not a validated probability or a measure of diagnostic accuracy.</p>
-  </section>
+   </section>
+   ${reviewRequired(result.capability_signals)}
+   ${scoreBreakdown(result.score_breakdown)}
 
    <section aria-labelledby="measurements-heading">
      <h2 id="measurements-heading">Measurements</h2>

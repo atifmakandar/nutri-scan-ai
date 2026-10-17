@@ -16,7 +16,7 @@ RiskLevel = Literal["LOW", "MEDIUM", "HIGH"]
 class SensorData(RequestModel):
     moisture_pct: float = Field(ge=0, le=100)
     ph: float = Field(ge=0, le=14)
-    temperature_c: float
+    temperature_c: float = Field(ge=-20, le=80)
     humidity_pct: float = Field(ge=0, le=100)
 
 class NIRData(RequestModel):
@@ -198,6 +198,13 @@ class CapabilitySignal(BaseModel):
     source: Literal["operator_or_lab_input"] = "operator_or_lab_input"
 
 
+class ScoreFactor(BaseModel):
+    code: Literal["ph_fit", "moisture_fit", "nutrition_indicator", "visual_indicator"]
+    score: float = Field(ge=0, le=100)
+    weight: float = Field(gt=0, le=1)
+    contribution: float = Field(ge=0, le=100)
+
+
 class AnalysisResult(BaseModel):
     id: str
     created_at: datetime
@@ -209,6 +216,7 @@ class AnalysisResult(BaseModel):
     anomalies: list[str]
     advisory: list[str]
     capability_signals: list[CapabilitySignal] = Field(default_factory=list)
+    score_breakdown: list[ScoreFactor] = Field(default_factory=list)
     assessment: AssessmentMetadata = Field(default_factory=AssessmentMetadata)
 
 

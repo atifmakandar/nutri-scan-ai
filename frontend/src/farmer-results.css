@@ -13,7 +13,14 @@
 .fr-risk-high { background: #fff0ed; border-color: #a03c30; }
 .fr-risk-unknown { background: #f2f3f4; }
 .fr-safety { padding: 1rem; border: 2px solid #946018; border-inline-start-width: 6px; background: #fff6e7; border-radius: .5rem; }
+.fr-review-required { padding: 1rem; border: 2px solid #a03c30; border-inline-start-width: 6px; background: #fff0ed; border-radius: .5rem; }
+.fr-review-required h4 { color: #7c2d25; }
+.fr-review-required p { margin-block: .4rem; }
 .fr-explanation, .fr-next, .fr-details, .fr-comparison, .fr-share { margin-block: 1.25rem; }
+.fr-score-breakdown { margin-block: 1.25rem; }
+.fr-score-breakdown table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: .9rem; }
+.fr-score-breakdown th, .fr-score-breakdown td { padding: .7rem; border-bottom: 1px solid #c6d4c7; text-align: start; vertical-align: top; }
+.fr-score-breakdown thead { background: #f2f6f1; }
 .fr-next { background: #f2f6f1; border: 1px solid #c6d4c7; border-radius: .7rem; padding: 1rem; }
 .farmer-results ul, .farmer-results ol { padding-inline-start: 1.5rem; margin-block: .5rem; }
 .farmer-results li + li { margin-top: .55rem; }
